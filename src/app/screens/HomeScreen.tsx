@@ -36,17 +36,21 @@ export default function HomeScreen() {
     faucetLoading,
     faucetCooldown,
     refreshBalance,
+    loadStoredTransactions,
   } = useTransactionStore();
 
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
   const userName = user?.name || 'Rian Senja';
 
   useEffect(() => {
+    // Muat riwayat transaksi dari SQLite lokal (FR-7.1)
+    loadStoredTransactions();
+
     // Sinkronkan saldo on-chain saat screen dimuat (FR-7.3)
     if (userAddress) {
       refreshBalance(userAddress);
     }
-  }, [userAddress, refreshBalance]);
+  }, [userAddress, refreshBalance, loadStoredTransactions]);
 
   const handlePressIn = () => {
     refreshActivity();

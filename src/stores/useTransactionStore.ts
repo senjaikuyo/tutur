@@ -2,7 +2,7 @@
  * Transaction Store (Zustand) — PRD Section 7.4 Store 2
  *
  * Mengelola saldo USDT, draft intent, pending transaction,
- * cooldown faucet 60 detik (FR-4.5), dan cache transaksi.
+ * cooldown faucet 60 detik (FR-4.5), dan persistent SQLite database (FR-7.1).
  */
 
 import {create} from 'zustand';
@@ -13,6 +13,11 @@ import {
   executeTransferUSDT,
   requestFaucetUSDT,
 } from '../services/transactionService';
+import {
+  getAllTransactions,
+  saveTransaction,
+  updateTransactionStatus as dbUpdateStatus,
+} from '../db';
 
 interface TransactionState {
   balance: number;
@@ -22,6 +27,7 @@ interface TransactionState {
     status: 'sending' | 'polling' | 'pending';
   } | null;
   recentTransactions: Transaction[];
+  allTransactions: Transaction[];
   isSending: boolean;
   faucetLoading: boolean;
   faucetCooldown: number; // Dalam detik (0 jika siap)
@@ -29,16 +35,17 @@ interface TransactionState {
   // Actions
   setBalance: (balance: number) => void;
   refreshBalance: (accountAddress: string) => Promise<void>;
+  loadStoredTransactions: () => Promise<void>;
   setDraftIntent: (intent: IntentResult) => void;
   clearDraft: () => void;
   setPendingTx: (hash: string, status: 'sending' | 'polling' | 'pending') => void;
   clearPendingTx: () => void;
-  addTransaction: (tx: Transaction) => void;
+  addTransaction: (tx: Transaction) => Promise<void>;
   updateTransactionStatus: (
     id: string,
     status: Transaction['status'],
     confirmedAt?: number,
-  ) => void;
+  ) => Promise<void>;
   setRecentTransactions: (txs: Transaction[]) => void;
   sendTransfer: (params: {
     senderAddress: string;
@@ -56,6 +63,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
   draftIntent: null,
   pendingTx: null,
   recentTransactions: [],
+  allTransactions: [],
   isSending: false,
   faucetLoading: false,
   faucetCooldown: 0,
@@ -75,6 +83,19 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
     }
   },
 
+  // Muat seluruh transaksi dari SQLite database lokal (FR-7.1)
+  loadStoredTransactions: async () => {
+    try {
+      const stored = await getAllTransactions();
+      set({
+        allTransactions: stored,
+        recentTransactions: stored.slice(0, 3), // 3 transaksi teratas untuk Home
+      });
+    } catch (e) {
+      console.warn('[TransactionStore] Failed to load stored transactions:', e);
+    }
+  },
+
   setDraftIntent: (intent: IntentResult) => {
     set({draftIntent: intent});
   },
@@ -91,22 +112,36 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
     set({pendingTx: null});
   },
 
-  addTransaction: (tx: Transaction) => {
-    const current = get().recentTransactions;
-    const updated = [tx, ...current].slice(0, 10);
-    set({recentTransactions: updated});
+  addTransaction: async (tx: Transaction) => {
+    // 1. Simpan ke SQLite database persisten (FR-7.1)
+    await saveTransaction(tx);
+
+    // 2. Perbarui state memory
+    const currentAll = get().allTransactions;
+    const updatedAll = [tx, ...currentAll.filter(item => item.id !== tx.id)];
+
+    set({
+      allTransactions: updatedAll,
+      recentTransactions: updatedAll.slice(0, 3),
+    });
   },
 
-  updateTransactionStatus: (
+  updateTransactionStatus: async (
     id: string,
     status: Transaction['status'],
     confirmedAt?: number,
   ) => {
-    const current = get().recentTransactions;
+    await dbUpdateStatus(id, status, confirmedAt);
+
+    const current = get().allTransactions;
     const updated = current.map(tx =>
       tx.id === id ? {...tx, status, confirmedAt: confirmedAt ?? tx.confirmedAt} : tx,
     );
-    set({recentTransactions: updated});
+
+    set({
+      allTransactions: updated,
+      recentTransactions: updated.slice(0, 3),
+    });
   },
 
   setRecentTransactions: (txs: Transaction[]) => {
@@ -155,7 +190,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
         isSending: false,
       }));
 
-      // Catat ke daftar transaksi
+      // Catat ke daftar transaksi dan simpan ke database lokal
       const newTx: Transaction = {
         id: Date.now().toString(),
         userOpHash: result.userOpHash,
@@ -171,7 +206,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
         confirmedAt: Date.now(),
       };
 
-      get().addTransaction(newTx);
+      await get().addTransaction(newTx);
 
       return {
         success: true,
@@ -204,6 +239,23 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
           faucetLoading: false,
           faucetCooldown: 60,
         }));
+
+        // Catat transaksi faucet minting
+        const faucetTx: Transaction = {
+          id: Date.now().toString(),
+          userOpHash: res.userOpHash,
+          action: 'BALANCE_CHECK',
+          recipientAddress: targetAccount,
+          recipientLabel: 'USDT Faucet (+100)',
+          tokenSymbol: 'USDT',
+          amount: 100,
+          status: 'success',
+          securityFlag: 'green',
+          gasSponsored: true,
+          createdAt: Date.now(),
+          confirmedAt: Date.now(),
+        };
+        await get().addTransaction(faucetTx);
 
         // Mulai timer cooldown 60 detik
         const intervalId = setInterval(() => {
