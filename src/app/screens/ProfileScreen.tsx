@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
+import {copyText} from '../../utils/clipboard';
 import {colors} from '../../constants/theme';
 import {OPBNB_TESTNET} from '../../constants/chains';
 import {shortenAddress, getInitials} from '../../utils/formatters';
@@ -51,6 +52,11 @@ export default function ProfileScreen() {
     }
   };
 
+  const copyToClipboard = (text: string, label: string) => {
+    copyText(text);
+    showToast(`${label} disalin ke clipboard!`, 'success');
+  };
+
   const handleLogout = async () => {
     await logoutParticle();
     logout();
@@ -78,7 +84,10 @@ export default function ProfileScreen() {
 
       {/* Account details */}
       <View style={styles.card}>
-        <View style={styles.detailBlock}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => copyToClipboard(smartAccount, 'Smart Account')}
+          style={styles.detailBlock}>
           <Text style={styles.detailLabel}>Smart Account (ERC-4337)</Text>
           <View style={styles.monoRow}>
             <Text style={styles.mono}>{shortenAddress(smartAccount)}</Text>
@@ -88,10 +97,13 @@ export default function ProfileScreen() {
               color={colors.bnbGold}
             />
           </View>
-        </View>
+        </TouchableOpacity>
         <View style={styles.divider} />
 
-        <View style={styles.detailBlock}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => copyToClipboard(eoaAddress, 'EOA Address')}
+          style={styles.detailBlock}>
           <Text style={styles.detailLabel}>EOA Signer Address</Text>
           <View style={styles.monoRow}>
             <Text style={styles.mono}>{shortenAddress(eoaAddress)}</Text>
@@ -101,7 +113,7 @@ export default function ProfileScreen() {
               color={colors.bnbGold}
             />
           </View>
-        </View>
+        </TouchableOpacity>
         <View style={styles.divider} />
 
         <View style={styles.detailBlock}>

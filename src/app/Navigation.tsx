@@ -1,10 +1,12 @@
-import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {useRef} from 'react';
+import {NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {colors} from '../constants/theme';
+import {useInactivityTimer} from '../hooks/useInactivityTimer';
+import {useAuthStore} from '../stores/useAuthStore';
 import type {
   RootStackParamList,
   HomeStackParamList,
@@ -175,8 +177,20 @@ function MainTabs() {
 // --- Root Navigator ---
 
 export default function Navigation() {
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const {logout} = useAuthStore();
+
+  // Hook timeout sesi 30 menit tanpa aktivitas (FR-1.5)
+  useInactivityTimer(() => {
+    logout();
+    navigationRef.current?.reset({
+      index: 0,
+      routes: [{name: 'Login'}],
+    });
+  });
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <RootStack.Navigator
         screenOptions={{
           headerShown: false,
