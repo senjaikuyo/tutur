@@ -216,7 +216,7 @@ export default function ConfirmationScreen() {
             isSending
               ? 'Memproses UserOp...'
               : securityColor === 'red' && !overrideRisk
-              ? 'Periksa Risiko Keamanan'
+              ? 'Periksa Risiko Keamanan (Blacklist)'
               : 'Konfirmasi & Kirim'
           }
           onPress={handleConfirm}
@@ -232,6 +232,7 @@ export default function ConfirmationScreen() {
           disabled={isSending}
           variant="ghost"
           fullWidth
+          style={styles.cancelBtn}
         />
       </View>
     </View>
@@ -317,10 +318,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   actions: {
-    padding: 16,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
+    backgroundColor: colors.bgPrimary,
+    overflow: 'hidden',
   },
   confirmBtn: {
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  cancelBtn: {
+    height: 40,
   },
 });

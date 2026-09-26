@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderColor: colors.bnbGold,
   },
   danger: {
-    backgroundColor: 'transparent',
+    backgroundColor: colors.statusRed,
   },
   ghost: {
     backgroundColor: 'transparent',
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     color: colors.bnbGold,
   },
   labelDanger: {
-    color: colors.statusRed,
+    color: colors.textPrimary,
   },
   labelGhost: {
     color: colors.textSecondary,

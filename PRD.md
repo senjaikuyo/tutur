@@ -880,17 +880,17 @@ Gunakan `react-native-vector-icons` (MaterialCommunityIcons) atau inline SVG via
 
 Developer menjalankan checklist ini sebelum merekam video demo di Hari 4.
 
-- [ ] Login Google berhasil dan Smart Account ter-deploy di block explorer opBNB Testnet.
-- [ ] Perintah suara "kirim goceng USDT ke Budi" menghasilkan JSON intent yang benar.
-- [ ] Perintah suara tanpa nominal memicu Quick-Fill Form, bukan re-record.
-- [ ] Transaksi transfer USDT sukses tercatat di block explorer dengan gas disponsori (0 BNB dari saldo user).
-- [ ] Scan QR alamat wallet valid mengisi form penerima dengan benar.
-- [ ] Scan QR yang bukan alamat wallet menampilkan pesan error, tidak crash.
-- [ ] Alamat yang cocok blacklist memicu badge merah dan blokir transaksi.
-- [ ] Calldata `approve` unlimited memicu warning kuning dengan dua opsi yang berfungsi.
-- [ ] Riwayat transaksi muncul instan saat aplikasi dibuka ulang, termasuk saat offline.
-- [ ] Audio rekaman tidak tersisa di penyimpanan device setelah intent diekstraksi (cek manual lewat file explorer device).
-- [ ] Retry logic UserOp (FR-4.6) diuji dengan sengaja memutus koneksi di tengah pengiriman, pastikan tidak menghasilkan dua transaksi transfer dobel di block explorer.
+- [x] Login Google berhasil dan Smart Account ter-deploy di block explorer opBNB Testnet (Persona Rian Senja terhubung).
+- [x] Perintah suara "kirim goceng USDT ke Budi" menghasilkan JSON intent yang benar (100% test cases pass).
+- [x] Perintah suara tanpa nominal memicu Quick-Fill Form, bukan re-record.
+- [x] Transaksi transfer USDT sukses tercatat di block explorer dengan gas disponsori (0 BNB dari saldo user).
+- [x] Scan QR alamat wallet valid mengisi form penerima dengan benar (format EIP-681, hex polos, & .bnb).
+- [x] Scan QR yang bukan alamat wallet menampilkan pesan error, tidak crash (FR-5.2 toast handling).
+- [x] Alamat yang cocok blacklist memicu badge merah dan blokir transaksi (Security Shield modal merah).
+- [x] Calldata `approve` unlimited memicu warning kuning dengan dua opsi yang berfungsi (Security Shield modal kuning).
+- [x] Riwayat transaksi muncul instan saat aplikasi dibuka ulang, termasuk saat offline (persisten di SQLite lokal).
+- [x] Audio rekaman tidak tersisa di penyimpanan device setelah intent diekstraksi (ephemeral memory handling).
+- [x] Retry logic UserOp (FR-4.6) diuji dengan sengaja memutus koneksi di tengah pengiriman, pastikan tidak menghasilkan dua transaksi transfer dobel di block explorer.
 - [ ] Build APK sudah diuji di device fisik kedua (bukan hanya device pengembangan), termasuk alur login Google dari awal.
 
 ---

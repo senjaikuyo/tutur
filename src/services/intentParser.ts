@@ -243,7 +243,7 @@ function calculateConfidence(result: {
   return Math.round(score * 100) / 100;
 }
 
-const TOKEN_NAMES = new Set(['usdt', 'usdc', 'bnb', 'busd', 'token']);
+const TOKEN_NAMES = new Set(['usdt', 'usdc', 'bnb', 'busd', 'token', 'rupiah', 'idr', 'rp']);
 
 function isTokenName(word: string): boolean {
   return TOKEN_NAMES.has(word.toLowerCase());
