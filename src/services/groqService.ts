@@ -12,27 +12,14 @@
  * dengan skenario frasa percakapan nyata Indonesia (Happy path, Slang, Rupiah).
  */
 
-declare const process: {
-  env: {
-    GROQ_API_KEY?: string;
-    [key: string]: string | undefined;
-  };
-};
-
-const getEnvApiKey = (): string => {
-  try {
-    return (typeof process !== 'undefined' && process.env?.GROQ_API_KEY) || '';
-  } catch {
-    return '';
-  }
-};
+import {ENV} from '../constants/env';
 
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions';
 const GROQ_MODEL = 'whisper-large-v3';
-const REQUEST_TIMEOUT_MS = 5000;
+const REQUEST_TIMEOUT_MS = 8000;
 
 export const isGroqConfigured = (): boolean => {
-  return Boolean(getEnvApiKey());
+  return Boolean(ENV.GROQ_API_KEY);
 };
 
 // Daftar frasa simulasi untuk pengujian lokal jika API key belum dimasukkan
@@ -61,7 +48,7 @@ export function getNextDemoVoicePreset(): string {
  * @returns Teks transkripsi hasil STT
  */
 export async function transcribeAudio(audioFilePath?: string): Promise<string> {
-  const apiKey = getEnvApiKey();
+  const apiKey = ENV.GROQ_API_KEY;
 
   if (!apiKey || !audioFilePath) {
     // Mode demo / emulator fallback jika belum ada API key fisik

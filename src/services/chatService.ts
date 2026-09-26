@@ -12,24 +12,11 @@ import {parseIntent} from './intentParser';
 import type {IntentResult} from '../types/intent';
 import type {ChatMessage} from '../types/chat';
 
-declare const process: {
-  env: {
-    GROQ_API_KEY?: string;
-    [key: string]: string | undefined;
-  };
-};
-
-const getEnvApiKey = (): string => {
-  try {
-    return (typeof process !== 'undefined' && process.env?.GROQ_API_KEY) || '';
-  } catch {
-    return '';
-  }
-};
+import {ENV} from '../constants/env';
 
 const GROQ_CHAT_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_CHAT_MODEL = 'llama-3.3-70b-versatile';
-const REQUEST_TIMEOUT_MS = 6000;
+const GROQ_CHAT_MODEL = 'qwen/qwen3.8-27b';
+const REQUEST_TIMEOUT_MS = 15000;
 
 export interface AssistantReply {
   text: string;
@@ -95,7 +82,7 @@ export async function sendChatMessage(
   // 1. Jalankan Rule-Based Intent Parser kita untuk deteksi aksi
   const intent = parseIntent(userText);
 
-  const apiKey = getEnvApiKey();
+  const apiKey = ENV.GROQ_API_KEY;
 
   // Jika tanpa API Key fisik, gunakan respons percakapan cerdas instan
   if (!apiKey) {
