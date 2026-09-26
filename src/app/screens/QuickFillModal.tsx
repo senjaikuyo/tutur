@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,27 +6,77 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import type {RouteProp} from '@react-navigation/native';
 import {colors} from '../../constants/theme';
 import Button from '../../components/common/Button';
 import type {RootStackParamList} from '../../types/navigation';
+import {useToastStore} from '../../stores/useToastStore';
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'QuickFillModal'>;
+type Route = RouteProp<RootStackParamList, 'QuickFillModal'>;
 type ActionType = 'TRANSFER' | 'BALANCE';
 
 export default function QuickFillModal() {
-  const navigation = useNavigation<Nav>();
-  const [action, setAction] = useState<ActionType>('TRANSFER');
-  const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState('');
+  const navigation = useNavigation<any>();
+  const route = useRoute<Route>();
+  const showToast = useToastStore(s => s.show);
+
+  const initialIntent = route.params?.intent;
+
+  const [action, setAction] = useState<ActionType>(
+    initialIntent?.action === 'BALANCE' ? 'BALANCE' : 'TRANSFER',
+  );
+  const [recipient, setRecipient] = useState(initialIntent?.recipient || '');
+  const [amount, setAmount] = useState(
+    initialIntent?.amount ? String(initialIntent.amount) : '',
+  );
+
+  useEffect(() => {
+    if (initialIntent?.recipient) {
+      setRecipient(initialIntent.recipient);
+    }
+    if (initialIntent?.amount) {
+      setAmount(String(initialIntent.amount));
+    }
+  }, [initialIntent]);
 
   const isComplete =
     action === 'BALANCE' || (recipient.trim() !== '' && amount.trim() !== '');
 
   const handleContinue = () => {
-    // TODO Fitur #6: navigate ke ConfirmationScreen dengan intent lengkap
+    if (action === 'BALANCE') {
+      navigation.goBack();
+      showToast('Saldo aktual kamu: 0.00 USDT (≈ Rp 0)', 'success');
+      return;
+    }
+
+    const numAmount = parseFloat(amount.replace(',', '.'));
+    if (isNaN(numAmount) || numAmount <= 0) {
+      showToast('Masukkan jumlah nominal yang valid', 'error');
+      return;
+    }
+
     navigation.goBack();
+    // Navigasi ke ConfirmationScreen dengan data lengkap
+    navigation.navigate('MainTabs', {
+      screen: 'HomeTab',
+      params: {
+        screen: 'Confirmation',
+        params: {
+          intent: {
+            action: 'TRANSFER',
+            recipient: recipient.trim(),
+            token: initialIntent?.token || 'USDT',
+            amount: numAmount,
+            amountInRupiah: initialIntent?.amountInRupiah || null,
+            confidence: 0.85,
+            rawText: initialIntent?.rawText || `Kirim ${numAmount} USDT ke ${recipient}`,
+            normalizedText: `kirim ${numAmount} usdt ke ${recipient}`,
+            missingFields: [],
+          },
+        },
+      },
+    });
   };
 
   return (
@@ -37,7 +87,7 @@ export default function QuickFillModal() {
           Beberapa info belum terdeteksi dari suara
         </Text>
 
-        {/* Action */}
+        {/* Action Type Chips */}
         <Text style={styles.label}>Tindakan</Text>
         <View style={styles.actionRow}>
           {(['TRANSFER', 'BALANCE'] as ActionType[]).map(a => (
@@ -61,7 +111,7 @@ export default function QuickFillModal() {
 
         {action === 'TRANSFER' && (
           <>
-            {/* Recipient */}
+            {/* Recipient Input */}
             <Text style={styles.label}>Penerima</Text>
             <View
               style={[
@@ -70,7 +120,7 @@ export default function QuickFillModal() {
               ]}>
               <TextInput
                 style={styles.input}
-                placeholder="Nama atau alamat wallet"
+                placeholder="Nama BNS (misal: budi.bnb) atau 0x..."
                 placeholderTextColor={colors.textMuted}
                 value={recipient}
                 onChangeText={setRecipient}
@@ -78,15 +128,23 @@ export default function QuickFillModal() {
               />
             </View>
             <View style={styles.linkRow}>
-              <TouchableOpacity style={styles.link}>
-                <Text style={styles.linkText}>Scan QR</Text>
+              <TouchableOpacity
+                style={styles.link}
+                onPress={() => {
+                  setRecipient('budi.bnb');
+                }}>
+                <Text style={styles.linkText}>Contoh: budi.bnb</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.link}>
-                <Text style={styles.linkText}>Tempel</Text>
+              <TouchableOpacity
+                style={styles.link}
+                onPress={() => {
+                  setRecipient('warung.bnb');
+                }}>
+                <Text style={styles.linkText}>warung.bnb</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Amount */}
+            {/* Amount Input */}
             <Text style={styles.label}>Jumlah</Text>
             <View
               style={[
@@ -136,22 +194,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     borderRadius: 16,
     padding: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
+    fontWeight: '600',
     color: colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   actionRow: {
     flexDirection: 'row',
@@ -169,6 +230,7 @@ const styles = StyleSheet.create({
   },
   actionChipActive: {
     borderColor: colors.bnbGold,
+    backgroundColor: `${colors.bnbGold}15`,
   },
   actionChipText: {
     fontSize: 13,
@@ -189,26 +251,27 @@ const styles = StyleSheet.create({
     height: 48,
   },
   inputError: {
-    borderColor: colors.error,
+    borderColor: colors.statusYellow,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textPrimary,
   },
   suffix: {
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '600',
     color: colors.textSecondary,
     marginLeft: 8,
   },
   linkRow: {
     flexDirection: 'row',
-    gap: 16,
-    marginTop: 8,
+    gap: 12,
+    marginTop: 6,
     marginBottom: 16,
   },
   link: {
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   linkText: {
     fontSize: 12,
@@ -216,7 +279,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   continueBtn: {
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 6,
   },
 });
