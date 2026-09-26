@@ -9,6 +9,8 @@ export type RootStackParamList = {
   SecurityWarningModal: {
     type: 'blacklist' | 'unlimited_allowance';
     address?: string;
+    onProceed?: () => void;
+    onCancel?: () => void;
   };
 };
 

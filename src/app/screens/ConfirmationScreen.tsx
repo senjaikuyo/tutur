@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   ScrollView,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -28,6 +29,7 @@ type Route = RouteProp<HomeStackParamList, 'Confirmation'>;
 
 export default function ConfirmationScreen() {
   const navigation = useNavigation<Nav>();
+  const rootNav = useNavigation<any>();
   const route = useRoute<Route>();
   const showToast = useToastStore(s => s.show);
   const {user} = useAuthStore();
@@ -38,35 +40,64 @@ export default function ConfirmationScreen() {
   const rawRecipient = intent?.recipient ?? '-';
   const rawText = intent?.rawText ?? '';
   const confidence = intent?.confidence ?? 1;
+  const isUnlimitedAllowance = Boolean(intent?.isUnlimitedAllowance);
+
+  // State override setelah interaksi modal warning
+  const [overrideRisk, setOverrideRisk] = useState(false);
+  const [allowanceLimited, setAllowanceLimited] = useState(false);
 
   // Resolusi nama BNS atau alamat wallet penerima
   const resolved = resolveRecipient(rawRecipient);
   const displayAddress = resolved.address || rawRecipient;
   const displayLabel = resolved.isBns ? resolved.label : null;
 
-  // Audit keamanan alamat penerima (FR-6)
+  // Audit keamanan alamat penerima (FR-6.1)
   const securityAudit = checkAddressSecurity(displayAddress);
 
-  const securityColor =
-    securityAudit.level === 'red'
-      ? 'red'
-      : confidence < 0.75
-      ? 'yellow'
-      : 'green';
+  // Tentukan warna dan label badge
+  let securityColor: 'red' | 'yellow' | 'green' = 'green';
+  let securityLabel = 'Aman';
 
-  const securityLabel =
-    securityAudit.level === 'red'
-      ? 'Berbahaya (Blacklist)'
-      : confidence < 0.75
-      ? 'Periksa Kembali'
-      : 'Aman';
+  if (securityAudit.level === 'red') {
+    securityColor = overrideRisk ? 'yellow' : 'red';
+    securityLabel = overrideRisk ? 'Risiko Diabaikan User' : 'Berbahaya (Blacklist)';
+  } else if ((isUnlimitedAllowance && !allowanceLimited) || confidence < 0.75) {
+    securityColor = 'yellow';
+    securityLabel = isUnlimitedAllowance
+      ? 'Izin Tak Terbatas'
+      : 'Periksa Kembali';
+  } else if (allowanceLimited) {
+    securityColor = 'green';
+    securityLabel = 'Aman (Izin Dibatasi)';
+  }
+
+  const openWarningModal = (type: 'blacklist' | 'unlimited_allowance') => {
+    rootNav.navigate('SecurityWarningModal', {
+      type,
+      address: displayAddress,
+      onProceed: () => {
+        if (type === 'blacklist') {
+          setOverrideRisk(true);
+        } else {
+          setAllowanceLimited(true);
+        }
+      },
+      onCancel: () => {
+        navigation.goBack();
+      },
+    });
+  };
 
   const handleConfirm = async () => {
-    if (securityAudit.blocked) {
-      showToast(
-        'Transaksi diblokir: Alamat tujuan terdaftar di blacklist!',
-        'error',
-      );
+    // 1. Blokir Blacklist jika belum di-override secara sadar (FR-6.1 & FR-6.4)
+    if (securityAudit.blocked && !overrideRisk) {
+      openWarningModal('blacklist');
+      return;
+    }
+
+    // 2. Intersepsi Unlimited Allowance jika belum dibatasi (FR-6.2 & FR-6.3)
+    if (isUnlimitedAllowance && !allowanceLimited) {
+      openWarningModal('unlimited_allowance');
       return;
     }
 
@@ -75,7 +106,7 @@ export default function ConfirmationScreen() {
       return;
     }
 
-    // Pengecekan saldo sebelum kirim UserOp (FR-4.4)
+    // 3. Pengecekan saldo sebelum kirim UserOp (FR-4.4)
     if (balance < amount) {
       showToast(
         `Saldo tidak cukup! Saldo kamu: ${balance.toFixed(2)} USDT, diperlukan: ${amount.toFixed(2)} USDT.`,
@@ -148,16 +179,31 @@ export default function ConfirmationScreen() {
           </View>
           <View style={styles.divider} />
 
-          <View style={styles.detailBlock}>
-            <Text style={styles.detailLabel}>Status Keamanan</Text>
+          {/* Status Keamanan Interaktif */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              if (securityAudit.level === 'red') {
+                openWarningModal('blacklist');
+              } else if (isUnlimitedAllowance) {
+                openWarningModal('unlimited_allowance');
+              }
+            }}
+            style={styles.detailBlock}>
+            <View style={styles.securityHeaderRow}>
+              <Text style={styles.detailLabel}>Status Keamanan (AI Shield)</Text>
+              {(securityColor === 'red' || securityColor === 'yellow') && (
+                <Text style={styles.clickHint}>Klik untuk info &gt;</Text>
+              )}
+            </View>
             <Badge label={securityLabel} color={securityColor} dot />
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Source Text Speech Recognition */}
         {rawText ? (
           <View style={styles.card}>
-            <Text style={styles.sourceLabel}>Dikenali dari suara:</Text>
+            <Text style={styles.sourceLabel}>Dikenali dari:</Text>
             <Text style={styles.sourceText}>"{rawText}"</Text>
           </View>
         ) : null}
@@ -166,11 +212,17 @@ export default function ConfirmationScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <Button
-          label={isSending ? 'Memproses UserOp...' : 'Konfirmasi & Kirim'}
+          label={
+            isSending
+              ? 'Memproses UserOp...'
+              : securityColor === 'red' && !overrideRisk
+              ? 'Periksa Risiko Keamanan'
+              : 'Konfirmasi & Kirim'
+          }
           onPress={handleConfirm}
           loading={isSending}
           disabled={isSending}
-          variant="primary"
+          variant={securityColor === 'red' && !overrideRisk ? 'danger' : 'primary'}
           fullWidth
           style={styles.confirmBtn}
         />
@@ -226,6 +278,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     marginBottom: 4,
+  },
+  securityHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  clickHint: {
+    fontSize: 11,
+    color: colors.bnbGold,
+    fontWeight: '600',
   },
   detailValue: {
     fontSize: 16,

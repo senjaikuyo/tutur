@@ -169,6 +169,29 @@ export default function ScanScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              style={[styles.testChip, {borderColor: colors.statusYellow}]}
+              onPress={() => {
+                navigation.navigate('Confirmation', {
+                  intent: {
+                    action: 'TRANSFER',
+                    recipient: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+                    token: 'USDT',
+                    amount: 50,
+                    amountInRupiah: null,
+                    confidence: 0.9,
+                    rawText: 'Approve USDT (Unlimited Allowance)',
+                    normalizedText: 'approve unlimited usdt',
+                    missingFields: [],
+                    isUnlimitedAllowance: true,
+                  },
+                });
+              }}>
+              <Text style={[styles.testChipText, {color: colors.statusYellow}]}>
+                Demo Unlimited Allowance
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.testChip, {borderColor: colors.border}]}
               onPress={() => handleProcessQR('https://google.com/bukan-wallet')}>
               <Text style={[styles.testChipText, {color: colors.textMuted}]}>

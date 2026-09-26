@@ -8,4 +8,6 @@ export interface IntentResult {
   rawText: string;
   normalizedText: string;
   missingFields: string[];
+  calldata?: string;
+  isUnlimitedAllowance?: boolean;
 }

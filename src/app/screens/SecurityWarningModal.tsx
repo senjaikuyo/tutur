@@ -8,6 +8,7 @@ import {colors} from '../../constants/theme';
 import Button from '../../components/common/Button';
 import {shortenAddress} from '../../utils/formatters';
 import type {RootStackParamList} from '../../types/navigation';
+import {useToastStore} from '../../stores/useToastStore';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'SecurityWarningModal'>;
 type Route = RouteProp<RootStackParamList, 'SecurityWarningModal'>;
@@ -15,106 +16,175 @@ type Route = RouteProp<RootStackParamList, 'SecurityWarningModal'>;
 export default function SecurityWarningModal() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const showToast = useToastStore(s => s.show);
+
   const type = route.params?.type ?? 'blacklist';
   const address = route.params?.address ?? '';
-  const [limit, setLimit] = useState(true);
+  const onProceed = route.params?.onProceed;
+  const onCancel = route.params?.onCancel;
 
-  const close = () => navigation.goBack();
+  const [limitAllowance, setLimitAllowance] = useState(true);
+
+  const handleBlacklistProceed = () => {
+    navigation.goBack();
+    showToast('Peringatan: Kamu melanjutkan ke alamat berisiko!', 'error');
+    if (onProceed) {
+      onProceed();
+    }
+  };
+
+  const handleBlacklistCancel = () => {
+    navigation.goBack();
+    showToast('Transaksi dibatalkan demi keamanan.', 'info');
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const handleAllowanceAction = () => {
+    navigation.goBack();
+    if (limitAllowance) {
+      showToast(
+        'Izin saldo dibatasi hanya sesuai nominal transaksi (Aman).',
+        'success',
+      );
+      if (onProceed) {
+        onProceed();
+      }
+    } else {
+      showToast('Transaksi dibatalkan.', 'info');
+      if (onCancel) {
+        onCancel();
+      }
+    }
+  };
 
   if (type === 'blacklist') {
     return (
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <MaterialCommunityIcons
-            name="alert-triangle"
-            size={40}
+            name="alert-octagon"
+            size={46}
             color={colors.statusRed}
             style={styles.icon}
           />
           <Text style={[styles.title, {color: colors.statusRed}]}>
-            PERINGATAN
+            PERINGATAN KEAMANAN
           </Text>
 
           <View style={styles.badgeRed}>
-            <Text style={styles.badgeRedText}>● BERBAHAYA</Text>
+            <Text style={styles.badgeRedText}>● ALAMAT BLACKLIST</Text>
           </View>
 
           <Text style={styles.body}>
-            Alamat tujuan terdata sebagai alamat yang dilaporkan terlibat
-            penipuan.
+            Alamat kontrak/wallet tujuan terdata sebagai alamat yang dilaporkan
+            terlibat penipuan (phishing/wallet drainer).
           </Text>
+
           <Text style={styles.monoRed}>{shortenAddress(address)}</Text>
+
           <Text style={[styles.body, styles.bold, {color: colors.statusRed}]}>
-            Transaksi DIBLOKIR demi keamanan kamu.
+            Transaksi DIBLOKIR demi keamanan dana kamu.
           </Text>
 
           <Button
-            label="Saya paham risikonya, lanjutkan"
-            onPress={close}
-            variant="danger"
+            label="Batalkan (Sangat Direkomendasikan)"
+            onPress={handleBlacklistCancel}
+            variant="primary"
             fullWidth
             style={styles.actionBtn}
           />
-          <Button
-            label="Batalkan (aman)"
-            onPress={close}
-            variant="primary"
-            fullWidth
-          />
+
+          <TouchableOpacity
+            style={styles.riskLink}
+            onPress={handleBlacklistProceed}>
+            <Text style={styles.riskLinkText}>
+              Saya paham risikonya, tetap lanjutkan &gt;
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
 
-  // unlimited_allowance
+  // Variant: unlimited_allowance (FR-6.2 & FR-6.3)
   return (
     <View style={styles.backdrop}>
       <View style={styles.card}>
         <MaterialCommunityIcons
-          name="alert-outline"
-          size={40}
+          name="shield-alert"
+          size={46}
           color={colors.statusYellow}
           style={styles.icon}
         />
         <Text style={[styles.title, {color: colors.statusYellow}]}>
-          Perhatian
+          Perhatian Izin Saldo
         </Text>
 
         <View style={styles.badgeYellow}>
-          <Text style={styles.badgeYellowText}>● PERIKSA</Text>
+          <Text style={styles.badgeYellowText}>● UNLIMITED ALLOWANCE</Text>
         </View>
 
         <Text style={styles.body}>
-          Kontrak ini meminta izin mengakses SELURUH saldo USDT kamu tanpa
-          batas.
+          Kontrak ini meminta izin mengakses <Text style={styles.bold}>SELURUH</Text> saldo USDT kamu tanpa batas. Tetap lanjutkan dengan nominal terbatas?
         </Text>
 
-        {/* Radio options */}
+        {address ? (
+          <Text style={styles.monoMuted}>Spender: {shortenAddress(address)}</Text>
+        ) : null}
+
+        {/* Radio Option 1: Batasi Izin (Default Terpilih - FR-6.3) */}
         <TouchableOpacity
-          style={styles.radioRow}
-          onPress={() => setLimit(true)}>
+          activeOpacity={0.8}
+          style={[
+            styles.radioBox,
+            limitAllowance && styles.radioBoxActive,
+          ]}
+          onPress={() => setLimitAllowance(true)}>
           <MaterialCommunityIcons
-            name={limit ? 'radiobox-marked' : 'radiobox-blank'}
+            name={limitAllowance ? 'radiobox-marked' : 'radiobox-blank'}
             size={22}
-            color={limit ? colors.emerald : colors.textMuted}
+            color={limitAllowance ? colors.emerald : colors.textMuted}
           />
-          <Text style={styles.radioText}>Batasi izin sesuai transaksi</Text>
+          <View style={styles.radioTextWrap}>
+            <Text style={styles.radioTitle}>
+              Batasi Izin Sesuai Transaksi
+            </Text>
+            <Text style={styles.radioSub}>
+              Hanya izinkan nominal yang kamu transfer sekarang (Direkomendasikan)
+            </Text>
+          </View>
         </TouchableOpacity>
 
+        {/* Radio Option 2: Batalkan Transaksi */}
         <TouchableOpacity
-          style={styles.radioRow}
-          onPress={() => setLimit(false)}>
+          activeOpacity={0.8}
+          style={[
+            styles.radioBox,
+            !limitAllowance && styles.radioBoxActive,
+          ]}
+          onPress={() => setLimitAllowance(false)}>
           <MaterialCommunityIcons
-            name={!limit ? 'radiobox-marked' : 'radiobox-blank'}
+            name={!limitAllowance ? 'radiobox-marked' : 'radiobox-blank'}
             size={22}
-            color={!limit ? colors.emerald : colors.textMuted}
+            color={!limitAllowance ? colors.bnbGold : colors.textMuted}
           />
-          <Text style={styles.radioText}>Batalkan transaksi</Text>
+          <View style={styles.radioTextWrap}>
+            <Text style={styles.radioTitle}>Batalkan Transaksi</Text>
+            <Text style={styles.radioSub}>
+              Jangan berikan izin apa pun ke kontrak ini
+            </Text>
+          </View>
         </TouchableOpacity>
 
         <Button
-          label={limit ? 'Lanjutkan' : 'Batalkan Transaksi'}
-          onPress={close}
+          label={
+            limitAllowance
+              ? 'Lanjutkan dengan Batas Aman'
+              : 'Batalkan Transaksi'
+          }
+          onPress={handleAllowanceAction}
           variant="primary"
           fullWidth
           style={styles.actionBtn}
@@ -136,25 +206,27 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   icon: {
-    marginBottom: 8,
+    marginBottom: 10,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   badgeRed: {
     backgroundColor: `${colors.statusRed}22`,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   badgeRedText: {
     color: colors.statusRed,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
   badgeYellow: {
@@ -162,42 +234,75 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   badgeYellowText: {
     color: colors.statusYellow,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
   body: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
     lineHeight: 22,
   },
   bold: {
     fontWeight: '700',
   },
   monoRed: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.statusRed,
     fontFamily: 'monospace',
-    marginBottom: 12,
+    marginBottom: 10,
+  },
+  monoMuted: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontFamily: 'monospace',
+    marginBottom: 14,
   },
   actionBtn: {
-    marginTop: 16,
+    marginTop: 14,
     marginBottom: 8,
   },
-  radioRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    paddingVertical: 12,
+  riskLink: {
+    paddingVertical: 8,
   },
-  radioText: {
-    fontSize: 15,
-    color: colors.textPrimary,
+  riskLinkText: {
+    fontSize: 13,
+    color: colors.statusRed,
+    textDecorationLine: 'underline',
+  },
+  radioBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: colors.bgTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+    width: '100%',
+  },
+  radioBoxActive: {
+    borderColor: colors.bnbGold,
+    backgroundColor: `${colors.bnbGold}10`,
+  },
+  radioTextWrap: {
     marginLeft: 10,
+    flex: 1,
+  },
+  radioTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 2,
+  },
+  radioSub: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    lineHeight: 16,
   },
 });
