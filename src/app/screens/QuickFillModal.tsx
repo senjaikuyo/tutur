@@ -131,14 +131,24 @@ export default function QuickFillModal() {
               <TouchableOpacity
                 style={styles.link}
                 onPress={() => {
-                  setRecipient('budi.bnb');
+                  navigation.goBack();
+                  navigation.navigate('MainTabs', {screen: 'ScanTab'});
                 }}>
-                <Text style={styles.linkText}>Contoh: budi.bnb</Text>
+                <Text style={styles.linkText}>📷 Scan QR</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.link}
+                onPress={() => {
+                  setRecipient('budi.bnb');
+                  showToast('Alamat budi.bnb ditempel', 'info');
+                }}>
+                <Text style={styles.linkText}>budi.bnb</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.link}
                 onPress={() => {
                   setRecipient('warung.bnb');
+                  showToast('Alamat warung.bnb ditempel', 'info');
                 }}>
                 <Text style={styles.linkText}>warung.bnb</Text>
               </TouchableOpacity>
