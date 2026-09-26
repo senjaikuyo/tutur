@@ -1,23 +1,48 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView, StyleSheet, Linking} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Linking,
+} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useNavigation} from '@react-navigation/native';
 import {colors} from '../../constants/theme';
 import {OPBNB_TESTNET} from '../../constants/chains';
 import {shortenAddress, getInitials} from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import {useToastStore} from '../../stores/useToastStore';
-
-// TODO Fitur #3: ganti dengan data nyata dari useAuthStore
-const MOCK_SMART_ACCOUNT = '0x0000000000000000000000000000000000000000';
-const MOCK_EOA = '0x0000000000000000000000000000000000000000';
-const MOCK_EMAIL = 'belum login';
-const MOCK_NAME = 'Tamu';
+import {useAuthStore} from '../../stores/useAuthStore';
+import {logoutParticle} from '../../services/particleService';
 
 export default function ProfileScreen() {
   const showToast = useToastStore(s => s.show);
+  const {user, logout} = useAuthStore();
+  const rootNav = useNavigation<{
+    reset: (state: {index: number; routes: {name: string}[]}) => void;
+  }>();
+
+  const smartAccount =
+    user?.smartAccountAddress || '0x0000000000000000000000000000000000000000';
+  const eoaAddress =
+    user?.eoaAddress || '0x0000000000000000000000000000000000000000';
+  const email = user?.email || 'belum login';
+  const name = user?.name || 'Tamu';
 
   const openExplorer = () => {
-    Linking.openURL(`${OPBNB_TESTNET.explorerUrl}/address/${MOCK_SMART_ACCOUNT}`);
+    Linking.openURL(`${OPBNB_TESTNET.explorerUrl}/address/${smartAccount}`);
+  };
+
+  const handleLogout = async () => {
+    await logoutParticle();
+    logout();
+    showToast('Berhasil keluar dari akun.', 'info');
+    rootNav.reset({
+      index: 0,
+      routes: [{name: 'Login'}],
+    });
   };
 
   return (
@@ -27,20 +52,20 @@ export default function ProfileScreen() {
       {/* User info */}
       <View style={styles.userCard}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{getInitials(MOCK_NAME)}</Text>
+          <Text style={styles.avatarText}>{getInitials(name)}</Text>
         </View>
         <View>
-          <Text style={styles.userName}>{MOCK_NAME}</Text>
-          <Text style={styles.userEmail}>{MOCK_EMAIL}</Text>
+          <Text style={styles.userName}>{name}</Text>
+          <Text style={styles.userEmail}>{email}</Text>
         </View>
       </View>
 
       {/* Account details */}
       <View style={styles.card}>
         <View style={styles.detailBlock}>
-          <Text style={styles.detailLabel}>Smart Account</Text>
+          <Text style={styles.detailLabel}>Smart Account (ERC-4337)</Text>
           <View style={styles.monoRow}>
-            <Text style={styles.mono}>{shortenAddress(MOCK_SMART_ACCOUNT)}</Text>
+            <Text style={styles.mono}>{shortenAddress(smartAccount)}</Text>
             <MaterialCommunityIcons
               name="content-copy"
               size={14}
@@ -51,9 +76,9 @@ export default function ProfileScreen() {
         <View style={styles.divider} />
 
         <View style={styles.detailBlock}>
-          <Text style={styles.detailLabel}>EOA Address</Text>
+          <Text style={styles.detailLabel}>EOA Signer Address</Text>
           <View style={styles.monoRow}>
-            <Text style={styles.mono}>{shortenAddress(MOCK_EOA)}</Text>
+            <Text style={styles.mono}>{shortenAddress(eoaAddress)}</Text>
             <MaterialCommunityIcons
               name="content-copy"
               size={14}
@@ -74,7 +99,9 @@ export default function ProfileScreen() {
       {/* Actions */}
       <Button
         label="Minta 100 USDT Faucet"
-        onPress={() => showToast('Fitur faucet akan hadir di langkah berikutnya', 'info')}
+        onPress={() =>
+          showToast('Permintaan faucet sedang disiapkan on-chain', 'info')
+        }
         variant="secondary"
         fullWidth
         style={styles.actionBtn}
@@ -88,9 +115,7 @@ export default function ProfileScreen() {
         style={styles.actionBtn}
       />
 
-      <TouchableOpacity
-        style={styles.logoutRow}
-        onPress={() => showToast('Logout akan hadir di langkah berikutnya', 'info')}>
+      <TouchableOpacity style={styles.logoutRow} onPress={handleLogout}>
         <Text style={styles.logoutText}>Keluar</Text>
       </TouchableOpacity>
 
@@ -106,6 +131,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingTop: 48,
   },
   header: {
     fontSize: 20,

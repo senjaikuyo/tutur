@@ -4,19 +4,26 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {colors} from '../../constants/theme';
 import type {RootStackParamList} from '../../types/navigation';
+import {useAuthStore} from '../../stores/useAuthStore';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 
 export default function SplashScreen() {
   const navigation = useNavigation<Nav>();
+  const {isAuthenticated, checkSessionExpiry} = useAuthStore();
 
   useEffect(() => {
-    // TODO Fitur #3: cek auth status dari Particle SDK
     const timer = setTimeout(() => {
-      navigation.replace('Login');
+      const isExpired = checkSessionExpiry();
+      if (isAuthenticated && !isExpired) {
+        navigation.replace('MainTabs');
+      } else {
+        navigation.replace('Login');
+      }
     }, 1500);
+
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, [navigation, isAuthenticated, checkSessionExpiry]);
 
   return (
     <View style={styles.container}>

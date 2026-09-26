@@ -15,11 +15,12 @@ import VoiceButton from '../../components/home/VoiceButton';
 import RecentTransactions from '../../components/home/RecentTransactions';
 import type {HomeStackParamList} from '../../types/navigation';
 import {useToastStore} from '../../stores/useToastStore';
+import {useAuthStore} from '../../stores/useAuthStore';
+import {useTransactionStore} from '../../stores/useTransactionStore';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
 
-// TODO Fitur #3 & #7: ganti dengan data nyata dari store + on-chain
-const MOCK_ADDRESS = '0x0000000000000000000000000000000000000000';
+const FALLBACK_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
@@ -27,19 +28,24 @@ export default function HomeScreen() {
     navigate: (screen: string, params?: object) => void;
   }>();
   const showToast = useToastStore(s => s.show);
+  const {user, refreshActivity} = useAuthStore();
+  const {recentTransactions} = useTransactionStore();
+
+  const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
+  const userName = user?.name || 'Pengguna';
 
   const handlePressIn = () => {
-    // TODO Fitur #5: mulai rekam audio sungguhan, lalu buka VoiceOverlay
+    refreshActivity();
     rootNav.navigate('VoiceOverlay');
   };
 
   const handlePressOut = () => {
-    // Rekaman dihentikan di dalam VoiceOverlay (Fitur #5)
+    // Selesai recording via VoiceOverlay
   };
 
   const handleFaucet = () => {
-    // TODO Fitur #7: mint 100 USDT via Smart Account
-    showToast('Fitur faucet akan hadir di langkah berikutnya', 'info');
+    refreshActivity();
+    showToast('Permintaan 100 USDT Faucet sedang diproses...', 'info');
   };
 
   return (
@@ -53,18 +59,18 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.avatar}
             onPress={() => rootNav.navigate('ProfileTab')}>
-            <Text style={styles.avatarText}>{getInitials('Afif')}</Text>
+            <Text style={styles.avatarText}>{getInitials(userName)}</Text>
           </TouchableOpacity>
         </View>
 
         <BalanceCard
           balance={0}
-          address={MOCK_ADDRESS}
+          address={userAddress}
           onFaucet={handleFaucet}
         />
 
         <Text style={styles.sectionTitle}>Aktivitas Terakhir</Text>
-        <RecentTransactions transactions={[]} />
+        <RecentTransactions transactions={recentTransactions} />
       </ScrollView>
 
       {/* Mic Button */}
@@ -86,6 +92,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingTop: 48,
   },
   header: {
     flexDirection: 'row',

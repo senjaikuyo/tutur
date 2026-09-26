@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgPrimary,
     padding: 16,
+    paddingTop: 48,
   },
   header: {
     fontSize: 20,

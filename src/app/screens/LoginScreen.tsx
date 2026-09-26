@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -6,15 +6,31 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {colors} from '../../constants/theme';
 import Button from '../../components/common/Button';
 import type {RootStackParamList} from '../../types/navigation';
+import {useAuthStore} from '../../stores/useAuthStore';
+import {useToastStore} from '../../stores/useToastStore';
+import {loginWithGoogle} from '../../services/particleService';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<Nav>();
+  const {login} = useAuthStore();
+  const showToast = useToastStore(s => s.show);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // TODO Fitur #3: login Google via Particle SDK
-    navigation.replace('MainTabs');
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const userSession = await loginWithGoogle();
+      login(userSession);
+      showToast(`Selamat datang, ${userSession.name}!`, 'success');
+      navigation.replace('MainTabs');
+    } catch (error) {
+      console.error('Login error:', error);
+      showToast('Gagal masuk akun. Silakan coba lagi.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +43,8 @@ export default function LoginScreen() {
         label="Masuk dengan Google"
         onPress={handleLogin}
         variant="primary"
+        loading={loading}
+        disabled={loading}
         fullWidth
         style={styles.loginBtn}
       />
