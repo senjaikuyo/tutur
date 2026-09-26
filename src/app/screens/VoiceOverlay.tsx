@@ -7,6 +7,7 @@ import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import {useVoiceStore} from '../../stores/useVoiceStore';
 import {useTransactionStore} from '../../stores/useTransactionStore';
+import {useChatStore} from '../../stores/useChatStore';
 import {transcribeAudio} from '../../services/groqService';
 import {parseIntent} from '../../services/intentParser';
 import {useToastStore} from '../../stores/useToastStore';
@@ -16,7 +17,8 @@ type VoiceState = 'recording' | 'processing' | 'error';
 export default function VoiceOverlay() {
   const navigation = useNavigation<any>();
   const showToast = useToastStore(s => s.show);
-  const {setDraftIntent} = useTransactionStore();
+  const {setDraftIntent, balance} = useTransactionStore();
+  const {addUserMessage} = useChatStore();
 
   const [state, setState] = useState<VoiceState>('recording');
   const [seconds, setSeconds] = useState(0);
@@ -74,7 +76,10 @@ export default function VoiceOverlay() {
       const intentResult = parseIntent(text);
       setDraftIntent(intentResult);
 
-      // 3. Evaluasi hasil intent & arahkan user
+      // 3. Masukkan ke riwayat chat percakapan
+      addUserMessage(text, true, balance);
+
+      // 4. Tutup modal suara dan arahkan ke layar yang relevan
       setTimeout(() => {
         close();
         if (intentResult.action === 'SWAP_UNAVAILABLE') {
@@ -82,20 +87,8 @@ export default function VoiceOverlay() {
             'Fitur penukaran token belum tersedia. Kamu bisa melakukan transfer atau cek saldo.',
             'info',
           );
-        } else if (intentResult.action === 'BALANCE') {
-          showToast('Saldo aktual kamu: 0.00 USDT (≈ Rp 0)', 'success');
         } else if (intentResult.confidence < 0.75 || intentResult.missingFields.length > 0) {
-          // Parameter tidak lengkap -> Quick-Fill Modal (FR-3)
           navigation.navigate('QuickFillModal', {intent: intentResult});
-        } else {
-          // Lengkap -> Layar Konfirmasi Transaksi (FR-2.4)
-          navigation.navigate('MainTabs', {
-            screen: 'HomeTab',
-            params: {
-              screen: 'Confirmation',
-              params: {intent: intentResult},
-            },
-          });
         }
       }, 700);
     } catch (err: any) {
