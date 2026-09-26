@@ -21,6 +21,7 @@ import {checkAddressSecurity} from '../../services/securityService';
 import type {HomeStackParamList} from '../../types/navigation';
 import {useToastStore} from '../../stores/useToastStore';
 import {useTransactionStore} from '../../stores/useTransactionStore';
+import {useAuthStore} from '../../stores/useAuthStore';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'Confirmation'>;
 type Route = RouteProp<HomeStackParamList, 'Confirmation'>;
@@ -29,7 +30,8 @@ export default function ConfirmationScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const showToast = useToastStore(s => s.show);
-  const {addTransaction} = useTransactionStore();
+  const {user} = useAuthStore();
+  const {sendTransfer, isSending, balance} = useTransactionStore();
 
   const intent = route.params?.intent;
   const amount = intent?.amount ?? 0;
@@ -59,30 +61,50 @@ export default function ConfirmationScreen() {
       ? 'Periksa Kembali'
       : 'Aman';
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (securityAudit.blocked) {
-      showToast('Transaksi diblokir: Alamat tujuan terdaftar di blacklist!', 'error');
+      showToast(
+        'Transaksi diblokir: Alamat tujuan terdaftar di blacklist!',
+        'error',
+      );
       return;
     }
 
-    // Catat transaksi sementara di memory store
-    addTransaction({
-      id: Date.now().toString(),
-      userOpHash: null,
-      action: 'TRANSFER',
+    if (amount <= 0) {
+      showToast('Nominal transfer harus lebih dari 0 USDT.', 'error');
+      return;
+    }
+
+    // Pengecekan saldo sebelum kirim UserOp (FR-4.4)
+    if (balance < amount) {
+      showToast(
+        `Saldo tidak cukup! Saldo kamu: ${balance.toFixed(2)} USDT, diperlukan: ${amount.toFixed(2)} USDT.`,
+        'error',
+      );
+      return;
+    }
+
+    const sender =
+      user?.smartAccountAddress || '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
+
+    const res = await sendTransfer({
+      senderAddress: sender,
       recipientAddress: displayAddress,
-      recipientLabel: displayLabel,
-      tokenSymbol: intent?.token || 'USDT',
       amount,
-      status: 'success',
+      tokenSymbol: intent?.token || 'USDT',
+      recipientLabel: displayLabel,
       securityFlag: securityColor as any,
-      gasSponsored: true,
-      createdAt: Date.now(),
-      confirmedAt: Date.now(),
     });
 
-    showToast(`Transfer ${amount} USDT berhasil dikirim!`, 'success');
-    navigation.navigate('Home');
+    if (res.success) {
+      showToast(
+        `Transfer ${amount} USDT berhasil dikirim via opBNB!`,
+        'success',
+      );
+      navigation.navigate('Home');
+    } else {
+      showToast(res.error || 'Gagal mengirim transaksi on-chain.', 'error');
+    }
   };
 
   return (
@@ -105,7 +127,9 @@ export default function ConfirmationScreen() {
               {displayLabel ? `${displayLabel}` : shortenAddress(displayAddress)}
             </Text>
             {displayLabel && (
-              <Text style={styles.detailMono}>{shortenAddress(displayAddress)}</Text>
+              <Text style={styles.detailMono}>
+                {shortenAddress(displayAddress)}
+              </Text>
             )}
           </View>
           <View style={styles.divider} />
@@ -142,8 +166,10 @@ export default function ConfirmationScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <Button
-          label="Konfirmasi & Kirim"
+          label={isSending ? 'Memproses UserOp...' : 'Konfirmasi & Kirim'}
           onPress={handleConfirm}
+          loading={isSending}
+          disabled={isSending}
           variant="primary"
           fullWidth
           style={styles.confirmBtn}
@@ -151,6 +177,7 @@ export default function ConfirmationScreen() {
         <Button
           label="Batalkan"
           onPress={() => navigation.goBack()}
+          disabled={isSending}
           variant="ghost"
           fullWidth
         />

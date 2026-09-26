@@ -15,24 +15,40 @@ import {shortenAddress, getInitials} from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import {useToastStore} from '../../stores/useToastStore';
 import {useAuthStore} from '../../stores/useAuthStore';
+import {useTransactionStore} from '../../stores/useTransactionStore';
 import {logoutParticle} from '../../services/particleService';
 
 export default function ProfileScreen() {
   const showToast = useToastStore(s => s.show);
   const {user, logout} = useAuthStore();
+  const {claimFaucet, faucetCooldown, faucetLoading} = useTransactionStore();
   const rootNav = useNavigation<{
     reset: (state: {index: number; routes: {name: string}[]}) => void;
   }>();
 
   const smartAccount =
-    user?.smartAccountAddress || '0x0000000000000000000000000000000000000000';
+    user?.smartAccountAddress || '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
   const eoaAddress =
-    user?.eoaAddress || '0x0000000000000000000000000000000000000000';
-  const email = user?.email || 'belum login';
-  const name = user?.name || 'Tamu';
+    user?.eoaAddress || '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+  const email = user?.email || 'rian.web3@gmail.com';
+  const name = user?.name || 'Rian Senja';
 
   const openExplorer = () => {
     Linking.openURL(`${OPBNB_TESTNET.explorerUrl}/address/${smartAccount}`);
+  };
+
+  const handleFaucet = async () => {
+    if (faucetCooldown > 0) {
+      showToast(`Tunggu cooldown ${faucetCooldown} detik...`, 'info');
+      return;
+    }
+    showToast('Meminta 100 USDT Faucet via opBNB Paymaster...', 'info');
+    const success = await claimFaucet(smartAccount);
+    if (success) {
+      showToast('100 USDT berhasil ditambahkan ke saldo!', 'success');
+    } else {
+      showToast('Gagal meminta faucet. Coba sesaat lagi.', 'error');
+    }
   };
 
   const handleLogout = async () => {
@@ -98,10 +114,16 @@ export default function ProfileScreen() {
 
       {/* Actions */}
       <Button
-        label="Minta 100 USDT Faucet"
-        onPress={() =>
-          showToast('Permintaan faucet sedang disiapkan on-chain', 'info')
+        label={
+          faucetLoading
+            ? 'Memproses...'
+            : faucetCooldown > 0
+            ? `Tunggu ${faucetCooldown} detik...`
+            : 'Minta 100 USDT Faucet'
         }
+        onPress={handleFaucet}
+        disabled={faucetCooldown > 0 || faucetLoading}
+        loading={faucetLoading}
         variant="secondary"
         fullWidth
         style={styles.actionBtn}

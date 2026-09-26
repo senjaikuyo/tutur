@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ import {useTransactionStore} from '../../stores/useTransactionStore';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
 
-const FALLBACK_ADDRESS = '0x0000000000000000000000000000000000000000';
+const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
@@ -29,10 +29,24 @@ export default function HomeScreen() {
   }>();
   const showToast = useToastStore(s => s.show);
   const {user, refreshActivity} = useAuthStore();
-  const {recentTransactions} = useTransactionStore();
+  const {
+    balance,
+    recentTransactions,
+    claimFaucet,
+    faucetLoading,
+    faucetCooldown,
+    refreshBalance,
+  } = useTransactionStore();
 
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
-  const userName = user?.name || 'Pengguna';
+  const userName = user?.name || 'Rian Senja';
+
+  useEffect(() => {
+    // Sinkronkan saldo on-chain saat screen dimuat (FR-7.3)
+    if (userAddress) {
+      refreshBalance(userAddress);
+    }
+  }, [userAddress, refreshBalance]);
 
   const handlePressIn = () => {
     refreshActivity();
@@ -43,9 +57,20 @@ export default function HomeScreen() {
     // Selesai recording via VoiceOverlay
   };
 
-  const handleFaucet = () => {
+  const handleFaucet = async () => {
     refreshActivity();
-    showToast('Permintaan 100 USDT Faucet sedang diproses...', 'info');
+    if (faucetCooldown > 0) {
+      showToast(`Tunggu cooldown ${faucetCooldown} detik...`, 'info');
+      return;
+    }
+
+    showToast('Meminta 100 USDT Faucet via opBNB Paymaster...', 'info');
+    const success = await claimFaucet(userAddress);
+    if (success) {
+      showToast('100 USDT berhasil ditambahkan ke saldo kamu!', 'success');
+    } else {
+      showToast('Gagal meminta faucet. Coba sesaat lagi.', 'error');
+    }
   };
 
   return (
@@ -64,9 +89,11 @@ export default function HomeScreen() {
         </View>
 
         <BalanceCard
-          balance={0}
+          balance={balance}
           address={userAddress}
           onFaucet={handleFaucet}
+          faucetLoading={faucetLoading}
+          faucetCooldown={faucetCooldown}
         />
 
         <Text style={styles.sectionTitle}>Aktivitas Terakhir</Text>
