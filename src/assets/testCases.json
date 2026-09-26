@@ -1,0 +1,95 @@
+{
+  "description": "15 test cases untuk pengukuran Intent Accuracy (FR-2A.5, Section 10.1 PRD). Setiap kalimat diuji minimal 3x.",
+  "cases": [
+    {
+      "id": 1,
+      "input": "kirim goceng USDT ke Budi",
+      "expected": { "action": "TRANSFER", "amount": 5.0, "recipient": "budi", "confidence": 1.0 },
+      "note": "Happy path lengkap"
+    },
+    {
+      "id": 2,
+      "input": "transfer ceban ke warung",
+      "expected": { "action": "TRANSFER", "amount": 10.0, "recipient": "warung", "confidence": 0.9 },
+      "note": "Tanpa sebut token"
+    },
+    {
+      "id": 3,
+      "input": "kirimin Afif gocap USDT",
+      "expected": { "action": "TRANSFER", "amount": 50.0, "recipient": "afif", "confidence": 1.0 },
+      "note": "Urutan nama sebelum nominal"
+    },
+    {
+      "id": 4,
+      "input": "oper seratus ribu ke Budi",
+      "expected": { "action": "TRANSFER", "amount": 5.58, "recipient": "budi", "confidence": 1.0 },
+      "note": "Konversi rupiah (100000/17916=5.58)"
+    },
+    {
+      "id": 5,
+      "input": "kirim setengah USDT ke Afif",
+      "expected": { "action": "TRANSFER", "amount": 0.5, "recipient": "afif", "confidence": 1.0 },
+      "note": "Nominal pecahan"
+    },
+    {
+      "id": 6,
+      "input": "bayar 15 USDT ke warung",
+      "expected": { "action": "TRANSFER", "amount": 15.0, "recipient": "warung", "confidence": 1.0 },
+      "note": "Nominal langsung tanpa slang"
+    },
+    {
+      "id": 7,
+      "input": "cek saldo",
+      "expected": { "action": "BALANCE", "amount": null, "recipient": null, "confidence": 0.7 },
+      "note": "Tanpa recipient, valid untuk BALANCE"
+    },
+    {
+      "id": 8,
+      "input": "berapa duit gue",
+      "expected": { "action": "BALANCE", "amount": null, "recipient": null, "confidence": 0.7 },
+      "note": "Slang cek saldo"
+    },
+    {
+      "id": 9,
+      "input": "kirim ke Budi",
+      "expected": { "action": "TRANSFER", "amount": null, "recipient": "budi", "confidence": 0.6 },
+      "note": "Amount kosong → Quick-Fill"
+    },
+    {
+      "id": 10,
+      "input": "goceng USDT",
+      "expected": { "action": null, "amount": 5.0, "recipient": null, "confidence": 0.4 },
+      "note": "Action + recipient kosong → Quick-Fill"
+    },
+    {
+      "id": 11,
+      "input": "cairin USDT",
+      "expected": { "action": "SWAP_UNAVAILABLE", "amount": null, "recipient": null, "confidence": 0.45 },
+      "note": "Tampilkan fitur belum tersedia"
+    },
+    {
+      "id": 12,
+      "input": "tukar ke rupiah",
+      "expected": { "action": "SWAP_UNAVAILABLE", "amount": null, "recipient": null, "confidence": 0.45 },
+      "note": "Tampilkan fitur belum tersedia"
+    },
+    {
+      "id": 13,
+      "input": "kirim lima ratus ribu ke Afif",
+      "expected": { "action": "TRANSFER", "amount": 27.91, "recipient": "afif", "confidence": 1.0 },
+      "note": "500000/17916 = 27.91 USDT"
+    },
+    {
+      "id": 14,
+      "input": "transfer satu juta ke Budi",
+      "expected": { "action": "TRANSFER", "amount": 55.81, "recipient": "budi", "confidence": 1.0 },
+      "note": "1000000/17916 = 55.81 USDT"
+    },
+    {
+      "id": 15,
+      "input": "",
+      "expected": { "action": null, "amount": null, "recipient": null, "confidence": 0.0 },
+      "note": "Error state (noise/kosong)"
+    }
+  ]
+}

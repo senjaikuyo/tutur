@@ -1,0 +1,36 @@
+{
+  "description": "Static blacklist alamat scam Web3 untuk demo MVP (FR-6.1). Bukan real-time detection.",
+  "lastUpdated": "2026-09-26",
+  "addresses": [
+    {
+      "address": "0x0000000000000000000000000000000000000001",
+      "label": "Demo Scam Address #1",
+      "source": "Internal test",
+      "reason": "Alamat demo untuk testing Security Shield"
+    },
+    {
+      "address": "0xdEAD000000000000000000000000000000000000",
+      "label": "Known Phishing Contract",
+      "source": "ChainAbuse report",
+      "reason": "Wallet drainer contract"
+    },
+    {
+      "address": "0x000000000000000000000000000000000000dEaD",
+      "label": "Burn Address (suspicious usage)",
+      "source": "Public report",
+      "reason": "Sering dipakai untuk unlimited approve scam"
+    },
+    {
+      "address": "0xBaD0000000000000000000000000000000000000",
+      "label": "Fake DEX Router",
+      "source": "DeFi safety report",
+      "reason": "Kontrak palsu yang menguras token saat swap"
+    },
+    {
+      "address": "0x1111111111111111111111111111111111111111",
+      "label": "Demo Scam Address #5",
+      "source": "Internal test",
+      "reason": "Alamat demo kedua untuk testing Security Shield"
+    }
+  ]
+}

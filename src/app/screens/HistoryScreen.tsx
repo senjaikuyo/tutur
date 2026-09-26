@@ -1,20 +1,36 @@
 import React from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, StyleSheet} from 'react-native';
+import {colors} from '../../constants/theme';
+import RecentTransactions from '../../components/home/RecentTransactions';
+import type {Transaction} from '../../types/transaction';
+
+// TODO Fitur #9: ganti dengan data dari WatermelonDB
+const MOCK: Transaction[] = [];
 
 export default function HistoryScreen() {
   return (
-    <View className="flex-1 bg-bg-primary px-4 pt-4">
-      <Text className="text-xl font-semibold text-text-primary mb-4">
-        Riwayat Transaksi
-      </Text>
-
-      <ScrollView className="flex-1">
-        <View className="bg-bg-secondary rounded-lg p-4">
-          <Text className="text-sm text-text-muted text-center py-8">
-            Belum ada riwayat transaksi
-          </Text>
-        </View>
+    <View style={styles.container}>
+      <Text style={styles.header}>Riwayat Transaksi</Text>
+      <ScrollView style={styles.scroll}>
+        <RecentTransactions transactions={MOCK} />
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgPrimary,
+    padding: 16,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 16,
+  },
+  scroll: {
+    flex: 1,
+  },
+});

@@ -1,32 +1,83 @@
 import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {colors} from '../../constants/theme';
+import Button from '../../components/common/Button';
+import type {RootStackParamList} from '../../types/navigation';
+
+type Nav = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
+  const navigation = useNavigation<Nav>();
+
+  const handleLogin = () => {
+    // TODO Fitur #3: login Google via Particle SDK
+    navigation.replace('MainTabs');
+  };
+
   return (
-    <View className="flex-1 items-center justify-center bg-bg-primary px-6">
-      <Text className="text-3xl font-bold text-bnb-gold mb-2">
-        TUTUR
-      </Text>
-      <Text className="text-base text-text-primary mb-1">
-        Transaksi kripto semudah
-      </Text>
-      <Text className="text-base text-text-primary mb-10">
-        ngobrol biasa
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.logo}>TUTUR</Text>
+      <Text style={styles.tagline}>Transaksi kripto semudah</Text>
+      <Text style={styles.tagline}>ngobrol biasa</Text>
 
-      <TouchableOpacity
-        className="w-full bg-bnb-gold rounded-md py-4 items-center"
-        onPress={() => {
-          // TODO: Particle SDK Google login
-        }}>
-        <Text className="text-bg-primary text-base font-semibold">
-          G  Masuk dengan Google
+      <Button
+        label="Masuk dengan Google"
+        onPress={handleLogin}
+        variant="primary"
+        fullWidth
+        style={styles.loginBtn}
+      />
+
+      <View style={styles.termsRow}>
+        <MaterialCommunityIcons
+          name="shield-check"
+          size={14}
+          color={colors.textMuted}
+        />
+        <Text style={styles.terms}>
+          Tanpa seed phrase. Akun diamankan biometrik + MPC.
         </Text>
-      </TouchableOpacity>
-
-      <Text className="text-xs text-text-muted mt-6 text-center">
-        Dengan masuk, kamu setuju{'\n'}dengan Syarat & Ketentuan
-      </Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bgPrimary,
+    paddingHorizontal: 24,
+  },
+  logo: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.bnbGold,
+    marginBottom: 8,
+  },
+  tagline: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    lineHeight: 24,
+  },
+  loginBtn: {
+    marginTop: 40,
+  },
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 24,
+    paddingHorizontal: 8,
+  },
+  terms: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
+});

@@ -1,62 +1,128 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {colors} from '../../constants/theme';
+import {getInitials} from '../../utils/formatters';
+import BalanceCard from '../../components/home/BalanceCard';
+import VoiceButton from '../../components/home/VoiceButton';
+import RecentTransactions from '../../components/home/RecentTransactions';
+import type {HomeStackParamList} from '../../types/navigation';
+import {useToastStore} from '../../stores/useToastStore';
+
+type Nav = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
+
+// TODO Fitur #3 & #7: ganti dengan data nyata dari store + on-chain
+const MOCK_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export default function HomeScreen() {
-  return (
-    <View className="flex-1 bg-bg-primary">
-      <ScrollView className="flex-1 px-4 pt-4">
-        {/* Header */}
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-xl font-bold text-bnb-gold">TUTUR</Text>
-          <View className="w-8 h-8 rounded-full bg-bg-tertiary items-center justify-center">
-            <Text className="text-text-secondary text-xs">AH</Text>
-          </View>
-        </View>
+  const navigation = useNavigation<Nav>();
+  const rootNav = useNavigation<{
+    navigate: (screen: string, params?: object) => void;
+  }>();
+  const showToast = useToastStore(s => s.show);
 
-        {/* Balance Card */}
-        <View className="bg-bg-secondary rounded-lg p-4 mb-6">
-          <Text className="text-sm text-text-secondary mb-1">Saldo Kamu</Text>
-          <Text className="text-3xl font-bold text-text-primary mb-1">
-            0.00 USDT
-          </Text>
-          <Text className="text-sm text-text-secondary mb-3">
-            ≈ Rp 0
-          </Text>
-          <Text className="text-xs text-text-muted font-mono mb-3">
-            0x0000...0000
-          </Text>
-          <TouchableOpacity className="border border-bnb-gold rounded-md py-2 items-center">
-            <Text className="text-bnb-gold text-sm font-semibold">
-              Minta 100 USDT
-            </Text>
+  const handlePressIn = () => {
+    // TODO Fitur #5: mulai rekam audio sungguhan, lalu buka VoiceOverlay
+    rootNav.navigate('VoiceOverlay');
+  };
+
+  const handlePressOut = () => {
+    // Rekaman dihentikan di dalam VoiceOverlay (Fitur #5)
+  };
+
+  const handleFaucet = () => {
+    // TODO Fitur #7: mint 100 USDT via Smart Account
+    showToast('Fitur faucet akan hadir di langkah berikutnya', 'info');
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerLogo}>TUTUR</Text>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={() => rootNav.navigate('ProfileTab')}>
+            <Text style={styles.avatarText}>{getInitials('Afif')}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Recent Transactions */}
-        <Text className="text-lg font-semibold text-text-primary mb-3">
-          Aktivitas Terakhir
-        </Text>
-        <View className="bg-bg-secondary rounded-lg p-4 mb-6">
-          <Text className="text-sm text-text-muted text-center py-4">
-            Belum ada transaksi
-          </Text>
-        </View>
+        <BalanceCard
+          balance={0}
+          address={MOCK_ADDRESS}
+          onFaucet={handleFaucet}
+        />
+
+        <Text style={styles.sectionTitle}>Aktivitas Terakhir</Text>
+        <RecentTransactions transactions={[]} />
       </ScrollView>
 
       {/* Mic Button */}
-      <View className="items-center pb-6">
-        <TouchableOpacity
-          className="w-16 h-16 rounded-full bg-bnb-gold items-center justify-center mb-1"
-          onPress={() => {
-            // TODO: Open VoiceOverlay
-          }}>
-          <Text className="text-2xl text-bg-primary">🎤</Text>
-        </TouchableOpacity>
-        <Text className="text-xs text-text-muted">
-          Tekan & tahan untuk bicara
-        </Text>
+      <View style={styles.micWrapper}>
+        <VoiceButton onPressIn={handlePressIn} onPressOut={handlePressOut} />
+        <Text style={styles.micHint}>Tekan & tahan untuk bicara</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgPrimary,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  headerLogo: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.bnbGold,
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.bgTertiary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 12,
+  },
+  micWrapper: {
+    alignItems: 'center',
+    paddingBottom: 24,
+  },
+  micHint: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+});

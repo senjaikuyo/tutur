@@ -1,19 +1,53 @@
 import React, {useEffect} from 'react';
-import {View, Text, ActivityIndicator} from 'react-native';
+import {View, Text, ActivityIndicator, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {colors} from '../../constants/theme';
+import type {RootStackParamList} from '../../types/navigation';
+
+type Nav = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 
 export default function SplashScreen() {
+  const navigation = useNavigation<Nav>();
+
+  useEffect(() => {
+    // TODO Fitur #3: cek auth status dari Particle SDK
+    const timer = setTimeout(() => {
+      navigation.replace('Login');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [navigation]);
+
   return (
-    <View
-      className="flex-1 items-center justify-center bg-bg-primary">
-      <Text
-        className="text-3xl font-bold text-bnb-gold mb-2">
-        TUTUR
-      </Text>
-      <Text className="text-sm text-text-secondary mb-8">
-        Dompet Kripto Bahasa Sehari-hari
-      </Text>
-      <ActivityIndicator size="large" color={colors.bnbGold} />
+    <View style={styles.container}>
+      <Text style={styles.logo}>TUTUR</Text>
+      <Text style={styles.subtitle}>Dompet Kripto Bahasa Sehari-hari</Text>
+      <View style={styles.spinnerWrapper}>
+        <ActivityIndicator size="large" color={colors.bnbGold} />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bgPrimary,
+  },
+  logo: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.bnbGold,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 32,
+  },
+  spinnerWrapper: {
+    marginTop: 8,
+  },
+});

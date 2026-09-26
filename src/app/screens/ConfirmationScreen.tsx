@@ -1,68 +1,181 @@
 import React from 'react';
-import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
+import {View, Text, ScrollView, StyleSheet} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import type {RouteProp} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {colors} from '../../constants/theme';
+import Button from '../../components/common/Button';
+import Badge from '../../components/common/Badge';
+import {
+  formatToken,
+  formatIdrEstimate,
+  shortenAddress,
+} from '../../utils/formatters';
+import type {HomeStackParamList} from '../../types/navigation';
+import {useToastStore} from '../../stores/useToastStore';
+
+type Nav = NativeStackNavigationProp<HomeStackParamList, 'Confirmation'>;
+type Route = RouteProp<HomeStackParamList, 'Confirmation'>;
 
 export default function ConfirmationScreen() {
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
+  const showToast = useToastStore(s => s.show);
+  const intent = route.params?.intent;
+
+  const amount = intent?.amount ?? 0;
+  const recipient = intent?.recipient ?? '-';
+  const rawText = intent?.rawText ?? '';
+  const confidence = intent?.confidence ?? 1;
+
+  const securityColor =
+    confidence < 0.75 ? 'yellow' : 'green';
+  const securityLabel = confidence < 0.75 ? 'Periksa Kembali' : 'Aman';
+
+  const handleConfirm = () => {
+    // TODO Fitur #7: konfirmasi biometrik + kirim UserOperation
+    showToast('Eksekusi on-chain akan hadir di langkah berikutnya', 'info');
+  };
+
   return (
-    <View className="flex-1 bg-bg-primary px-4 pt-4">
-      <ScrollView className="flex-1">
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}>
         {/* Amount */}
-        <View className="bg-bg-secondary rounded-lg p-4 mb-4">
-          <Text className="text-sm text-text-secondary mb-1">Kirim</Text>
-          <Text className="text-3xl font-bold text-text-primary">0.00 USDT</Text>
-          <Text className="text-sm text-text-secondary">≈ Rp 0</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Kirim</Text>
+          <Text style={styles.amount}>{formatToken(amount)}</Text>
+          <Text style={styles.estimate}>{formatIdrEstimate(amount)}</Text>
         </View>
 
         {/* Details */}
-        <View className="bg-bg-secondary rounded-lg p-4 mb-4">
-          <View className="mb-3">
-            <Text className="text-xs text-text-secondary mb-1">Kepada</Text>
-            <Text className="text-base font-semibold text-text-primary">-</Text>
-            <Text className="text-xs text-text-muted font-mono">0x0000...0000</Text>
+        <View style={styles.card}>
+          <View style={styles.detailBlock}>
+            <Text style={styles.detailLabel}>Kepada</Text>
+            <Text style={styles.detailValue}>{recipient}</Text>
+            <Text style={styles.detailMono}>{shortenAddress(recipient)}</Text>
           </View>
-          <View className="h-px bg-border mb-3" />
-          <View className="mb-3">
-            <Text className="text-xs text-text-secondary mb-1">Token</Text>
-            <Text className="text-base text-text-primary">USDT</Text>
+          <View style={styles.divider} />
+
+          <View style={styles.detailBlock}>
+            <Text style={styles.detailLabel}>Token</Text>
+            <Text style={styles.detailValue}>{intent?.token ?? 'USDT'}</Text>
           </View>
-          <View className="h-px bg-border mb-3" />
-          <View className="mb-3">
-            <Text className="text-xs text-text-secondary mb-1">Biaya Gas</Text>
-            <Text className="text-base text-emerald">0 BNB (Disponsori)</Text>
-          </View>
-          <View className="h-px bg-border mb-3" />
-          <View>
-            <Text className="text-xs text-text-secondary mb-1">
-              Status Keamanan
+          <View style={styles.divider} />
+
+          <View style={styles.detailBlock}>
+            <Text style={styles.detailLabel}>Biaya Gas</Text>
+            <Text style={[styles.detailValue, {color: colors.emerald}]}>
+              0 BNB (Disponsori)
             </Text>
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full bg-status-green mr-2" />
-              <Text className="text-base text-status-green">Aman</Text>
-            </View>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.detailBlock}>
+            <Text style={styles.detailLabel}>Status Keamanan</Text>
+            <Badge label={securityLabel} color={securityColor} dot />
           </View>
         </View>
 
-        {/* Source Text */}
-        <View className="bg-bg-secondary rounded-lg p-4 mb-6">
-          <Text className="text-xs text-text-muted mb-1">
-            Dikenali dari suara:
-          </Text>
-          <Text className="text-sm text-text-secondary italic">
-            "..."
-          </Text>
-        </View>
+        {/* Source text */}
+        {rawText ? (
+          <View style={styles.card}>
+            <Text style={styles.sourceLabel}>Dikenali dari suara:</Text>
+            <Text style={styles.sourceText}>"{rawText}"</Text>
+          </View>
+        ) : null}
       </ScrollView>
 
       {/* Actions */}
-      <View className="pb-6">
-        <TouchableOpacity className="bg-bnb-gold rounded-md py-4 items-center mb-3">
-          <Text className="text-bg-primary text-base font-semibold">
-            Konfirmasi & Kirim
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="py-3 items-center">
-          <Text className="text-text-secondary text-base">Batalkan</Text>
-        </TouchableOpacity>
+      <View style={styles.actions}>
+        <Button
+          label="Konfirmasi & Kirim"
+          onPress={handleConfirm}
+          variant="primary"
+          fullWidth
+          style={styles.confirmBtn}
+        />
+        <Button
+          label="Batalkan"
+          onPress={() => navigation.goBack()}
+          variant="ghost"
+          fullWidth
+        />
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgPrimary,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: colors.bgSecondary,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  amount: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  estimate: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  detailBlock: {
+    paddingVertical: 8,
+  },
+  detailLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  detailValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  detailMono: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontFamily: 'monospace',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 4,
+  },
+  sourceLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+  sourceText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+  },
+  actions: {
+    padding: 16,
+    paddingBottom: 24,
+  },
+  confirmBtn: {
+    marginBottom: 8,
+  },
+});

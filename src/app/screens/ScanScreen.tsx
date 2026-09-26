@@ -1,42 +1,150 @@
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {colors} from '../../constants/theme';
+import type {ScanStackParamList} from '../../types/navigation';
+import {idrToUsdt} from '../../utils/formatters';
+
+type Nav = NativeStackNavigationProp<ScanStackParamList, 'Scan'>;
 
 export default function ScanScreen() {
-  return (
-    <View className="flex-1 bg-bg-primary px-4 pt-4">
-      <Text className="text-xl font-semibold text-text-primary mb-4">
-        Scan QR
-      </Text>
+  const navigation = useNavigation<Nav>();
+  const [scanning] = useState(true);
 
-      {/* Camera Placeholder */}
-      <View className="bg-bg-secondary rounded-lg items-center justify-center h-64 mb-4">
-        <View className="border-2 border-bnb-gold rounded-md w-40 h-40 items-center justify-center">
-          <Text className="text-text-muted text-sm">VIEWFINDER</Text>
+  // TODO Fitur #10: integrasi kamera Vision Camera + ML Kit
+  const handlePresetHosting = () => {
+    navigation.navigate('Confirmation', {
+      intent: {
+        action: 'TRANSFER',
+        recipient: null,
+        token: 'USDT',
+        amount: 15,
+        amountInRupiah: null,
+        confidence: 0.9,
+        rawText: 'Tagihan Hosting $15',
+        normalizedText: 'tagihan hosting $15',
+        missingFields: ['recipient'],
+      },
+    });
+  };
+
+  const handlePresetCoffee = () => {
+    navigation.navigate('Confirmation', {
+      intent: {
+        action: 'TRANSFER',
+        recipient: null,
+        token: 'USDT',
+        amount: idrToUsdt(25000),
+        amountInRupiah: 25000,
+        confidence: 0.9,
+        rawText: 'Struk Kopi Rp 25.000',
+        normalizedText: 'struk kopi rp 25000',
+        missingFields: ['recipient'],
+      },
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Scan QR</Text>
+
+      {/* Camera viewfinder placeholder */}
+      <View style={styles.viewfinder}>
+        <View style={styles.frame}>
+          <Text style={styles.frameText}>
+            {scanning ? 'KAMERA AKTIF' : 'VIEWFINDER'}
+          </Text>
         </View>
       </View>
 
-      <Text className="text-sm text-text-secondary text-center mb-6">
+      <Text style={styles.hint}>
         Arahkan kamera ke QR code alamat wallet
       </Text>
 
       {/* Divider */}
-      <View className="flex-row items-center mb-4">
-        <View className="flex-1 h-px bg-border" />
-        <Text className="text-text-muted text-xs mx-3">atau bayar tagihan</Text>
-        <View className="flex-1 h-px bg-border" />
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>atau bayar tagihan</Text>
+        <View style={styles.dividerLine} />
       </View>
 
-      {/* Preset Buttons */}
-      <TouchableOpacity className="border border-bnb-gold rounded-md py-3 items-center mb-3">
-        <Text className="text-bnb-gold text-sm font-semibold">
-          Tagihan Hosting $15
-        </Text>
+      {/* Preset buttons */}
+      <TouchableOpacity style={styles.presetBtn} onPress={handlePresetHosting}>
+        <Text style={styles.presetText}>Tagihan Hosting $15</Text>
       </TouchableOpacity>
-      <TouchableOpacity className="border border-bnb-gold rounded-md py-3 items-center">
-        <Text className="text-bnb-gold text-sm font-semibold">
-          Struk Kopi Rp 25.000
-        </Text>
+      <TouchableOpacity style={styles.presetBtn} onPress={handlePresetCoffee}>
+        <Text style={styles.presetText}>Struk Kopi Rp 25.000</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgPrimary,
+    padding: 16,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 16,
+  },
+  viewfinder: {
+    backgroundColor: colors.bgSecondary,
+    borderRadius: 12,
+    height: 256,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  frame: {
+    width: 160,
+    height: 160,
+    borderWidth: 2,
+    borderColor: colors.bnbGold,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  frameText: {
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+  hint: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginHorizontal: 12,
+  },
+  presetBtn: {
+    borderWidth: 1,
+    borderColor: colors.bnbGold,
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  presetText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.bnbGold,
+  },
+});

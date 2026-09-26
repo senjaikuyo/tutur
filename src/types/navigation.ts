@@ -31,3 +31,10 @@ export type HistoryStackParamList = {
 export type ProfileStackParamList = {
   Profile: undefined;
 };
+
+export type MainTabParamList = {
+  HomeTab: undefined;
+  ScanTab: undefined;
+  HistoryTab: undefined;
+  ProfileTab: undefined;
+};
