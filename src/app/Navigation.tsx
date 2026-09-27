@@ -10,6 +10,7 @@ import {useAuthStore} from '../stores/useAuthStore';
 import type {
   RootStackParamList,
   HomeStackParamList,
+  ChatStackParamList,
   ScanStackParamList,
   HistoryStackParamList,
   ProfileStackParamList,
@@ -19,6 +20,7 @@ import type {
 import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
+import ChatScreen from './screens/ChatScreen';
 import ScanScreen from './screens/ScanScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -26,9 +28,11 @@ import ConfirmationScreen from './screens/ConfirmationScreen';
 import VoiceOverlay from './screens/VoiceOverlay';
 import QuickFillModal from './screens/QuickFillModal';
 import SecurityWarningModal from './screens/SecurityWarningModal';
+import CustomBottomTabBar from '../components/navigation/CustomBottomTabBar';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const ChatStack = createNativeStackNavigator<ChatStackParamList>();
 const ScanStack = createNativeStackNavigator<ScanStackParamList>();
 const HistoryStack = createNativeStackNavigator<HistoryStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
@@ -55,6 +59,28 @@ function HomeStackNavigator() {
         }}
       />
     </HomeStack.Navigator>
+  );
+}
+
+function ChatStackNavigator() {
+  return (
+    <ChatStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {backgroundColor: colors.bgPrimary},
+      }}>
+      <ChatStack.Screen name="Chat" component={ChatScreen} />
+      <ChatStack.Screen
+        name="Confirmation"
+        component={ConfirmationScreen}
+        options={{
+          headerShown: true,
+          title: 'Konfirmasi Transaksi',
+          headerStyle: {backgroundColor: colors.bgPrimary},
+          headerTintColor: colors.textPrimary,
+        }}
+      />
+    </ChatStack.Navigator>
   );
 }
 
@@ -109,66 +135,34 @@ function ProfileStackNavigator() {
 function MainTabs() {
   return (
     <Tab.Navigator
+      tabBar={props => <CustomBottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.bgSecondary,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 4,
-        },
-        tabBarActiveTintColor: colors.bnbGold,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-        },
       }}>
       <Tab.Screen
         name="HomeTab"
         component={HomeStackNavigator}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="wallet" size={size} color={color} />
-          ),
-        }}
+        options={{tabBarLabel: 'Beranda'}}
+      />
+      <Tab.Screen
+        name="ChatTab"
+        component={ChatStackNavigator}
+        options={{tabBarLabel: 'Chat'}}
       />
       <Tab.Screen
         name="ScanTab"
         component={ScanStackNavigator}
-        options={{
-          tabBarLabel: 'Scan',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="qrcode-scan" size={size} color={color} />
-          ),
-        }}
+        options={{tabBarLabel: 'Scan'}}
       />
       <Tab.Screen
         name="HistoryTab"
         component={HistoryStackNavigator}
-        options={{
-          tabBarLabel: 'History',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="history" size={size} color={color} />
-          ),
-        }}
+        options={{tabBarLabel: 'Riwayat'}}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackNavigator}
-        options={{
-          tabBarLabel: 'Me',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons
-              name="account-circle"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
+        options={{tabBarLabel: 'Profil'}}
       />
     </Tab.Navigator>
   );

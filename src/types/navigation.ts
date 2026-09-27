@@ -20,6 +20,11 @@ export type HomeStackParamList = {
   TransactionDetail: {txId: string};
 };
 
+export type ChatStackParamList = {
+  Chat: undefined;
+  Confirmation: {intent: IntentResult};
+};
+
 export type ScanStackParamList = {
   Scan: undefined;
   Confirmation: {intent: IntentResult};
@@ -36,6 +41,7 @@ export type ProfileStackParamList = {
 
 export type MainTabParamList = {
   HomeTab: undefined;
+  ChatTab: undefined;
   ScanTab: undefined;
   HistoryTab: undefined;
   ProfileTab: undefined;

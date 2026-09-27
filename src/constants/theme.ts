@@ -8,6 +8,9 @@ export const colors = {
   bnbGold: '#F0B90B',
   emerald: '#10B981',
   emeraldDark: '#059669',
+  gopayBlue: '#00AED6',
+  gopayBlueDark: '#0081A0',
+  gopayNavy: '#0F1E2C',
 
   // Text
   textPrimary: '#FFFFFF',
