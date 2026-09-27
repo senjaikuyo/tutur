@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {colors} from '../../constants/theme';
 
 export interface FeatureItem {
   id: string;
@@ -9,11 +8,6 @@ export interface FeatureItem {
   icon: string;
   iconColor: string;
   iconBgColor?: string;
-  badge?: {
-    text: string;
-    bgColor: string;
-    textColor: string;
-  };
   onPress: () => void;
 }
 
@@ -31,7 +25,7 @@ export default function FeatureGrid({features}: FeatureGridProps) {
             activeOpacity={0.7}
             onPress={item.onPress}
             style={styles.gridItem}>
-            {/* Icon Box with optional mini badge tag ala GoPay (Gambar 2) */}
+            {/* Clean Icon Box Tanpa Badge Menumpuk */}
             <View
               style={[
                 styles.iconBox,
@@ -42,26 +36,9 @@ export default function FeatureGrid({features}: FeatureGridProps) {
                 size={26}
                 color={item.iconColor}
               />
-
-              {/* Tag Mini Badge (Contoh: MURAAAH / GRATIS GAS) */}
-              {item.badge && (
-                <View
-                  style={[
-                    styles.tagBadge,
-                    {backgroundColor: item.badge.bgColor},
-                  ]}>
-                  <Text
-                    style={[
-                      styles.tagBadgeText,
-                      {color: item.badge.textColor},
-                    ]}>
-                    {item.badge.text}
-                  </Text>
-                </View>
-              )}
             </View>
 
-            {/* Label Layanan */}
+            {/* Label Layanan Rapi & Minimalis */}
             <Text style={styles.itemLabel} numberOfLines={2}>
               {item.label}
             </Text>
@@ -74,15 +51,15 @@ export default function FeatureGrid({features}: FeatureGridProps) {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: '#121C27',
+    backgroundColor: '#181E28',
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: '#1D2D3E',
+    borderColor: '#263040',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
     marginBottom: 16,
@@ -102,29 +79,12 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 16,
-    backgroundColor: '#1A2737',
+    backgroundColor: '#222936',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
-    position: 'relative',
     borderWidth: 1,
-    borderColor: '#24374D',
-  },
-  tagBadge: {
-    position: 'absolute',
-    bottom: -6,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#0D1722',
-  },
-  tagBadgeText: {
-    fontSize: 8,
-    fontWeight: '800',
-    letterSpacing: -0.3,
+    borderColor: '#2D3747',
   },
   itemLabel: {
     fontSize: 12,

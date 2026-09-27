@@ -15,7 +15,9 @@ import {useTransactionStore} from '../../stores/useTransactionStore';
 import {useToastStore} from '../../stores/useToastStore';
 import {formatIdr, usdtToIdr, idrToUsdt} from '../../utils/formatters';
 import FeatureGrid, {FeatureItem} from '../../components/home/FeatureGrid';
-import ContactShortcuts, {ShortcutContact} from '../../components/home/ContactShortcuts';
+import ContactShortcuts, {
+  ShortcutContact,
+} from '../../components/home/ContactShortcuts';
 
 const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
@@ -56,14 +58,6 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSecurityCheck = () => {
-    refreshActivity();
-    rootNav.navigate('SecurityWarningModal', {
-      type: 'blacklist',
-      address: userAddress,
-    });
-  };
-
   const handleHelp = () => {
     refreshActivity();
     rootNav.navigate('Faq');
@@ -92,18 +86,13 @@ export default function HomeScreen() {
 
   const balanceInRupiah = usdtToIdr(balance);
 
-  // 8 Fitur Utama Grid Beranda (Referensi Gambar 2)
+  // 8 Fitur Utama Grid Beranda (Konsisten Tema Dark Emas/Oren Binance, Bersih Tanpa Stiker)
   const features: FeatureItem[] = [
     {
       id: 'transfer',
-      label: 'Transfer\ngratis',
+      label: 'Transfer',
       icon: 'send',
-      iconColor: '#00AED6',
-      badge: {
-        text: 'GRATIS GAS',
-        bgColor: '#10B981',
-        textColor: '#FFFFFF',
-      },
+      iconColor: colors.bnbGold,
       onPress: () => {
         refreshActivity();
         rootNav.navigate('QuickFillModal', {intent: {}});
@@ -113,24 +102,14 @@ export default function HomeScreen() {
       id: 'faucet',
       label: 'Minta\nSaldo',
       icon: 'cash-plus',
-      iconColor: '#10B981',
-      badge: {
-        text: '100 USDT',
-        bgColor: '#00AED6',
-        textColor: '#FFFFFF',
-      },
+      iconColor: colors.emerald,
       onPress: handleTopUp,
     },
     {
       id: 'data',
       label: 'Paket\nData',
       icon: 'cellphone-wireless',
-      iconColor: '#F59E0B',
-      badge: {
-        text: 'MURAAAH',
-        bgColor: '#10B981',
-        textColor: '#0B1724',
-      },
+      iconColor: colors.bnbOrange,
       onPress: () => {
         refreshActivity();
         showToast('Fitur Paket Data akan hadir di update berikutnya', 'info');
@@ -138,14 +117,9 @@ export default function HomeScreen() {
     },
     {
       id: 'pulsa',
-      label: 'Pulsa\nReguler',
+      label: 'Pulsa',
       icon: 'cellphone-message',
-      iconColor: '#00AED6',
-      badge: {
-        text: 'MURAAAH',
-        bgColor: '#10B981',
-        textColor: '#0B1724',
-      },
+      iconColor: '#38BDF8',
       onPress: () => {
         refreshActivity();
         showToast('Fitur Pulsa akan hadir di update berikutnya', 'info');
@@ -156,21 +130,19 @@ export default function HomeScreen() {
       label: 'Token\nPLN',
       icon: 'flash',
       iconColor: '#FACC15',
-      badge: {
-        text: 'MURAAAH',
-        bgColor: '#10B981',
-        textColor: '#0B1724',
-      },
       onPress: () => {
         refreshActivity();
-        showToast('Fitur Token Listrik PLN akan hadir di update berikutnya', 'info');
+        showToast(
+          'Fitur Token Listrik PLN akan hadir di update berikutnya',
+          'info',
+        );
       },
     },
     {
       id: 'hosting',
       label: 'Tagihan\nHosting',
       icon: 'server',
-      iconColor: '#38BDF8',
+      iconColor: '#A78BFA',
       onPress: () => {
         refreshActivity();
         rootNav.navigate('HomeTab', {
@@ -193,14 +165,9 @@ export default function HomeScreen() {
     },
     {
       id: 'kopi',
-      label: 'Struk Kopi\n(QRIS)',
+      label: 'Struk Kopi',
       icon: 'coffee',
-      iconColor: '#10B981',
-      badge: {
-        text: 'CASHBACK',
-        bgColor: '#F59E0B',
-        textColor: '#0B1724',
-      },
+      iconColor: '#F97316',
       onPress: () => {
         refreshActivity();
         const usdtAmount = idrToUsdt(25000);
@@ -243,61 +210,35 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {/* ============================================================ */}
-        {/* 1. HEADER & HERO SALDO (Gaya GoPay x TUTUR - Referensi Gambar 2) */}
+        {/* 1. HEADER & HERO SALDO (Konsisten Emas/Oren Binance)          */}
         {/* ============================================================ */}
         <View style={styles.heroSection}>
-          {/* Top Bar: Logo & Keamanan / Bantuan */}
+          {/* Top Bar: Murni Logo TUTUR Emas di Kiri, Tombol Bantuan di Kanan */}
           <View style={styles.topBar}>
-            {/* Logo Kiri Atas */}
-            <View style={styles.logoRow}>
-              <View style={styles.logoIconBg}>
-                <MaterialCommunityIcons
-                  name="wallet"
-                  size={18}
-                  color="#FFFFFF"
-                />
-              </View>
-              <Text style={styles.logoText}>tutur</Text>
-            </View>
+            <Text style={styles.logoText}>TUTUR</Text>
 
-            {/* Kanan Atas: Indikator Keamanan Akun & Tombol Bantuan */}
-            <View style={styles.topRightActions}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleSecurityCheck}
-                style={styles.securityBadge}>
-                <View style={styles.securityPill}>
-                  <Text style={styles.securityPercent}>80%</Text>
-                </View>
-                <Text style={styles.securityText}>Akun terlindungi</Text>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={14}
-                  color="#FFFFFF"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={handleHelp}
-                style={styles.helpButton}>
-                <MaterialCommunityIcons
-                  name="help-circle-outline"
-                  size={20}
-                  color="#FFFFFF"
-                />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleHelp}
+              style={styles.helpButton}>
+              <MaterialCommunityIcons
+                name="help-circle-outline"
+                size={22}
+                color={colors.bnbGold}
+              />
+            </TouchableOpacity>
           </View>
 
-          {/* Area Saldo Utama & Tombol Top Up (Tanpa Tarik Tunai, Tanpa Poin) */}
+          {/* Area Saldo Utama & Tombol Top Up */}
           <View style={styles.balanceArea}>
             {/* Sisi Kiri: Saldo Besar */}
             <View style={styles.balanceInfo}>
               <View style={styles.balanceRow}>
                 <Text style={styles.currencyPrefix}>Rp</Text>
                 <Text style={styles.mainBalance}>
-                  {showBalance ? formatIdr(balanceInRupiah).replace('Rp ', '') : '••••••••'}
+                  {showBalance
+                    ? formatIdr(balanceInRupiah).replace('Rp ', '')
+                    : '••••••••'}
                 </Text>
                 <TouchableOpacity
                   activeOpacity={0.7}
@@ -306,7 +247,7 @@ export default function HomeScreen() {
                   <MaterialCommunityIcons
                     name={showBalance ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
-                    color="#FFFFFF"
+                    color={colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -318,7 +259,7 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            {/* Sisi Kanan: HANYA Tombol Top Up */}
+            {/* Sisi Kanan: Tombol Top Up Emas/Oren Binance */}
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={handleTopUp}
@@ -330,7 +271,7 @@ export default function HomeScreen() {
               <MaterialCommunityIcons
                 name="plus-circle-outline"
                 size={20}
-                color="#FFFFFF"
+                color="#0B0E14"
               />
               <Text style={styles.topUpText}>
                 {faucetLoading
@@ -343,11 +284,14 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* 2. GRID FITUR (Gaya GoPay - Referensi Gambar 2) */}
+        {/* ============================================================ */}
+        {/* 2. BODY: GRID FITUR & KONTAK CEPAT (Rounded Surface)          */}
+        {/* ============================================================ */}
         <View style={styles.bodyContent}>
+          {/* 8 Grid Fitur */}
           <FeatureGrid features={features} />
 
-          {/* 3. KONTAK CEPAT (Shortcut Transfer - Referensi Gambar 2) */}
+          {/* Shortcut Kontak */}
           <ContactShortcuts
             onSelectContact={handleSelectContact}
             onPressMore={handleMoreContacts}
@@ -361,84 +305,44 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A1118',
+    backgroundColor: '#0B0E14',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 90,
+    paddingBottom: 110,
   },
-  /* Hero Header Saldo bergaya GoPay */
+  /* Hero Header Saldo beraksen Binance Dark Gold */
   heroSection: {
-    backgroundColor: '#08486A',
+    backgroundColor: '#181E28',
     paddingTop: 48,
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 22,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#263040',
   },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  logoIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#00AED6',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 18,
   },
   logoText: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -0.5,
-  },
-  topRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  securityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
-    borderRadius: 20,
-    paddingVertical: 4,
-    paddingLeft: 4,
-    paddingRight: 8,
-    gap: 6,
-  },
-  securityPill: {
-    backgroundColor: '#F59E0B',
-    borderRadius: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  securityPercent: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#000000',
-  },
-  securityText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.bnbGold,
+    letterSpacing: 0.5,
   },
   helpButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#202836',
+    borderWidth: 1,
+    borderColor: '#2D3747',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -460,7 +364,7 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.bnbGold,
   },
   mainBalance: {
     fontSize: 28,
@@ -475,21 +379,21 @@ const styles = StyleSheet.create({
   },
   cryptoEquiv: {
     fontSize: 12,
-    color: '#D1EBF6',
+    color: '#8C9BAA',
     marginTop: 2,
     fontWeight: '500',
   },
   topUpButton: {
-    backgroundColor: '#00AED6',
+    backgroundColor: colors.bnbGold,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     borderRadius: 22,
-    shadowColor: '#000',
+    shadowColor: colors.bnbGold,
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.35,
     shadowRadius: 4,
     elevation: 4,
   },
@@ -498,24 +402,11 @@ const styles = StyleSheet.create({
   },
   topUpText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: '800',
+    color: '#0B0E14',
   },
   bodyContent: {
     padding: 16,
-  },
-  placeholderCard: {
-    backgroundColor: '#131D28',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#1D2C3D',
-  },
-  placeholderText: {
-    fontSize: 13,
-    color: '#6E8294',
-    fontStyle: 'italic',
+    paddingTop: 18,
   },
 });

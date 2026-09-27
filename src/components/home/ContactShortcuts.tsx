@@ -141,15 +141,15 @@ export default function ContactShortcuts({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: '#121C27',
+    backgroundColor: '#181E28',
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#1D2D3E',
+    borderColor: '#263040',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
     marginBottom: 20,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 8,
     borderWidth: 2,
-    borderColor: '#24374D',
+    borderColor: '#2D3747',
   },
   avatarText: {
     fontSize: 18,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#121C27',
+    borderColor: '#181E28',
   },
   subBadgeText: {
     fontSize: 8,
@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#1C2938',
+    backgroundColor: '#222936',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
     borderWidth: 1.5,
-    borderColor: '#2B3C50',
+    borderColor: '#2D3747',
   },
   contactName: {
     fontSize: 13,
