@@ -7,3 +7,4 @@
 - [x] 5. Validasi alur AI Security Shield (Blacklist & Unlimited Allowance Warning)
 - [x] 6. Validasi persistensi SQLite database lokal riwayat transaksi (FR-7.1, NFR-4)
 - [x] 7. Build Standalone Release APK (tutur-release.apk) dengan Groq API Key ter-embed langsung
+- [x] 8. Desain ulang Beranda terinspirasi layout GoPay (5-tab navigation, custom elevated scan button, 4-column feature grid, contact shortcuts)
