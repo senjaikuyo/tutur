@@ -7,7 +7,6 @@ import {colors} from '../../constants/theme';
 
 export default function CustomBottomTabBar({
   state,
-  descriptors,
   navigation,
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -17,7 +16,6 @@ export default function CustomBottomTabBar({
     <View style={styles.tabBarContainer}>
       <View style={[styles.tabBar, {paddingBottom: bottomPadding, height: 60 + bottomPadding}]}>
         {state.routes.map((route, index) => {
-          const {options} = descriptors[route.key];
           const isFocused = state.index === index;
           const isCenterScan = route.name === 'ScanTab';
 

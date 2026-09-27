@@ -5,7 +5,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {colors} from '../../constants/theme';
 import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import {useVoiceStore} from '../../stores/useVoiceStore';
 import {useTransactionStore} from '../../stores/useTransactionStore';
 import {useChatStore} from '../../stores/useChatStore';
 import {transcribeAudio} from '../../services/groqService';
@@ -59,6 +58,7 @@ export default function VoiceOverlay() {
     }, 100);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const close = () => {

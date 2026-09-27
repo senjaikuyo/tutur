@@ -5,7 +5,7 @@
 let ClipboardModule: any = null;
 try {
   ClipboardModule = require('@react-native-clipboard/clipboard').default;
-} catch (e) {
+} catch {
   console.warn('[Clipboard] Native module not loaded, using fallback');
 }
 

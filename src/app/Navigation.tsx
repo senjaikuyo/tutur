@@ -2,7 +2,6 @@ import React, {useRef} from 'react';
 import {NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {colors} from '../constants/theme';
 import {useInactivityTimer} from '../hooks/useInactivityTimer';
@@ -134,10 +133,12 @@ function ProfileStackNavigator() {
 
 // --- Bottom Tab Navigator ---
 
+const renderCustomTabBar = (props: any) => <CustomBottomTabBar {...props} />;
+
 function MainTabs() {
   return (
     <Tab.Navigator
-      tabBar={props => <CustomBottomTabBar {...props} />}
+      tabBar={renderCustomTabBar}
       screenOptions={{
         headerShown: false,
       }}>

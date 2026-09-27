@@ -106,8 +106,8 @@ export default function FaqScreen() {
                 color={colors.bgPrimary}
               />
             </View>
-            <View style={{flex: 1, marginLeft: 12}}>
-              <Text style={styles.appName}>TUTUR</Text>
+            <View style={styles.appNameContainer}>
+              <Text style={styles.appName}>tutur</Text>
               <Text style={styles.appTagline}>
                 Dompet Kripto Bahasa Sehari-hari
               </Text>
@@ -243,6 +243,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bnbGold,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  appNameContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   appName: {
     fontSize: 20,

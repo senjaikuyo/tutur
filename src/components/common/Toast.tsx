@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Animated} from 'react-native';
+import {Text, StyleSheet, Animated} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {colors} from '../../constants/theme';
 import {useToastStore, ToastType} from '../../stores/useToastStore';

@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import {View, Image, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {colors} from '../../constants/theme';
 import type {RootStackParamList} from '../../types/navigation';
 import {useAuthStore} from '../../stores/useAuthStore';
 

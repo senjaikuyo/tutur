@@ -87,7 +87,7 @@ export default function HistoryScreen() {
               name="history"
               size={54}
               color={colors.textMuted}
-              style={{marginBottom: 12}}
+              style={styles.emptyIcon}
             />
             <Text style={styles.emptyTitle}>Belum Ada Riwayat Transaksi</Text>
             <Text style={styles.emptySub}>
@@ -282,6 +282,9 @@ const styles = StyleSheet.create({
     marginTop: 40,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  emptyIcon: {
+    marginBottom: 12,
   },
   emptyTitle: {
     fontSize: 16,

@@ -6,7 +6,6 @@
  */
 
 import {create} from 'zustand';
-import type {IntentResult} from '../types/intent';
 
 interface VoiceState {
   isRecording: boolean;

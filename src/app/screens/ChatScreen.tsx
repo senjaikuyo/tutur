@@ -29,7 +29,7 @@ export default function ChatScreen() {
   const showToast = useToastStore(s => s.show);
 
   const {user, refreshActivity} = useAuthStore();
-  const {balance, claimFaucet, faucetLoading, faucetCooldown, refreshBalance} =
+  const {balance, claimFaucet, faucetCooldown, refreshBalance} =
     useTransactionStore();
   const {messages, isTyping, loadChatHistory, addUserMessage} = useChatStore();
 

@@ -22,7 +22,6 @@ export default function RecentTransactions({
         transactions.map((tx, idx) => {
           const outgoing = tx.action === 'TRANSFER';
           const arrowColor = outgoing ? colors.statusRed : colors.emerald;
-          const arrowName = outgoing ? 'arrow-up' : 'arrow-down';
           const statusColor =
             tx.status === 'success'
               ? colors.statusGreen

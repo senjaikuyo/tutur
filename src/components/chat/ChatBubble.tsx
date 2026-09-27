@@ -7,7 +7,6 @@ import {
   formatToken,
   formatIdrEstimate,
   formatClock,
-  shortenAddress,
 } from '../../utils/formatters';
 import type {ChatMessage} from '../../types/chat';
 import type {IntentResult} from '../../types/intent';

@@ -14,7 +14,6 @@ import {
   getOfflineQueue,
 } from '../db';
 import {executeTransferUSDT} from './transactionService';
-import type {Transaction} from '../types/transaction';
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
