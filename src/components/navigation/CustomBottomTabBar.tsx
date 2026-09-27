@@ -1,6 +1,7 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {colors} from '../../constants/theme';
 
@@ -9,9 +10,12 @@ export default function CustomBottomTabBar({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 10);
+
   return (
     <View style={styles.tabBarContainer}>
-      <View style={styles.tabBar}>
+      <View style={[styles.tabBar, {paddingBottom: bottomPadding, height: 60 + bottomPadding}]}>
         {state.routes.map((route, index) => {
           const {options} = descriptors[route.key];
           const isFocused = state.index === index;
@@ -29,7 +33,7 @@ export default function CustomBottomTabBar({
             }
           };
 
-          // Tampilan Tombol Scan di Tengah (Elevated Protruding Rounded Button ala GoPay - Gambar 1)
+          // Tampilan Tombol Scan di Tengah (Elevated Protruding Button beraksen Binance Gold / Emas)
           if (isCenterScan) {
             return (
               <View key={route.key} style={styles.centerItemWrapper}>
@@ -41,7 +45,7 @@ export default function CustomBottomTabBar({
                     <MaterialCommunityIcons
                       name="qrcode-scan"
                       size={24}
-                      color="#FFFFFF"
+                      color="#0F131A"
                     />
                   </View>
                 </TouchableOpacity>
@@ -82,18 +86,12 @@ export default function CustomBottomTabBar({
               activeOpacity={0.7}
               onPress={onPress}
               style={styles.tabItem}>
-              {/* Highlight Pill saat Tab Aktif (Seperti di Referensi Gambar 1) */}
-              <View
-                style={[
-                  styles.iconWrap,
-                  isFocused && styles.iconWrapActive,
-                ]}>
-                <MaterialCommunityIcons
-                  name={iconName}
-                  size={24}
-                  color={isFocused ? colors.gopayBlue : colors.textMuted}
-                />
-              </View>
+              {/* Ikon Tab Bersih Tanpa Kotak Kaku */}
+              <MaterialCommunityIcons
+                name={iconName}
+                size={23}
+                color={isFocused ? colors.bnbGold : '#848E9C'}
+              />
               <Text
                 style={[
                   styles.tabLabel,
@@ -101,6 +99,9 @@ export default function CustomBottomTabBar({
                 ]}>
                 {labelText}
               </Text>
+
+              {/* Indikator Titik/Garis Halus Emas saat Aktif (Elegan & Rapi) */}
+              {isFocused ? <View style={styles.activeIndicatorPill} /> : <View style={styles.inactiveIndicatorPlaceholder} />}
             </TouchableOpacity>
           );
         })}
@@ -119,79 +120,80 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#121A24',
+    backgroundColor: '#121620',
     borderTopWidth: 1,
-    borderTopColor: '#1E2D3D',
-    height: 68,
-    paddingBottom: 6,
+    borderTopColor: '#222938',
     paddingTop: 6,
     alignItems: 'center',
     justifyContent: 'space-around',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: -3},
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 12,
+    shadowOffset: {width: 0, height: -4},
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 16,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  iconWrap: {
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 14,
-    marginBottom: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconWrapActive: {
-    backgroundColor: '#163148',
+    paddingVertical: 2,
   },
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    marginTop: 1,
+    marginTop: 2,
   },
   labelFocused: {
-    color: '#FFFFFF',
+    color: colors.bnbGold,
+    fontWeight: '700',
   },
   labelUnfocused: {
-    color: '#8A99A8',
+    color: '#848E9C',
+  },
+  activeIndicatorPill: {
+    width: 14,
+    height: 2.5,
+    borderRadius: 1.5,
+    backgroundColor: colors.bnbGold,
+    marginTop: 3,
+  },
+  inactiveIndicatorPlaceholder: {
+    width: 14,
+    height: 2.5,
+    marginTop: 3,
   },
   centerItemWrapper: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 2,
     height: '100%',
+    paddingBottom: 2,
   },
   scanElevatedButtonOuter: {
     position: 'absolute',
     top: -22,
-    width: 66,
+    width: 62,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#0E2235',
+    backgroundColor: '#1F1A08',
     padding: 3,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.gopayBlue,
+    shadowColor: colors.bnbGold,
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.45,
     shadowRadius: 8,
     elevation: 10,
     borderWidth: 2,
-    borderColor: '#1D3B55',
+    borderColor: '#3D3310',
   },
   scanElevatedButtonInner: {
     width: '100%',
     height: '100%',
     borderRadius: 20,
-    backgroundColor: colors.gopayBlue,
+    backgroundColor: colors.bnbGold,
     alignItems: 'center',
     justifyContent: 'center',
   },

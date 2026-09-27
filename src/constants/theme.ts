@@ -4,13 +4,12 @@ export const colors = {
   bgSecondary: '#1A1A24',
   bgTertiary: '#252530',
 
-  // Brand
+  // Brand (Binance Gold / Orange Palette)
   bnbGold: '#F0B90B',
+  bnbGoldDark: '#D4A207',
+  bnbOrange: '#F59E0B',
   emerald: '#10B981',
   emeraldDark: '#059669',
-  gopayBlue: '#00AED6',
-  gopayBlueDark: '#0081A0',
-  gopayNavy: '#0F1E2C',
 
   // Text
   textPrimary: '#FFFFFF',
