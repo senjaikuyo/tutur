@@ -24,7 +24,7 @@ Semua keputusan yang sebelumnya terbuka sudah diputuskan. Tabel ini jadi rujukan
 | D7 | RN bootstrap | **Bare React Native CLI** | Particle SDK butuh native modules, Expo managed tidak kompatibel |
 | D8 | Intent parser | **Rule-based murni** (regex + keyword matching) | Deterministik, gratis, tanpa dependency API tambahan. Confidence dihitung dari field yang berhasil di-extract |
 | D9 | Konversi rupiah | **Hardcoded rate 1 USDT = Rp 17.916** | Untuk demo. Versi produksi pakai oracle/API CoinGecko |
-| D10 | Navigation | **Bottom Tab (4 tab) + Stack per tab** | Tab: Home, Scan, History, Profile. Familiar buat user |
+| D10 | Navigation | **Bottom Tab (5 tab) + Stack per tab** | Tab: Home, Chat, Scan, History, Profile. Familiar buat user |
 | D11 | State management | **Zustand** | Ringan, tanpa boilerplate, cocok untuk proyek kecil |
 | D12 | UI framework | **NativeWind only** (custom components) | Tanpa UI kit tambahan, kontrol penuh, bundle lebih kecil |
 
@@ -622,7 +622,7 @@ tutur/
 | `nativewind` | ~4.1 | Tailwind CSS untuk RN | Styling utama |
 | `tailwindcss` | ~3.4 | Dependency NativeWind | Config di `tailwind.config.js` |
 | `@react-navigation/native` | ^7.x | Navigation core | - |
-| `@react-navigation/bottom-tabs` | ^7.x | Bottom tab navigation | 4 tab: Home, Scan, History, Profile |
+| `@react-navigation/bottom-tabs` | ^7.x | Bottom tab navigation | 5 tab: Home, Chat, Scan, History, Profile |
 | `@react-navigation/native-stack` | ^7.x | Stack navigation per tab | Push/pop screens |
 | `react-native-screens` | - | Dependency React Navigation | Native screen containers |
 | `react-native-safe-area-context` | - | Dependency React Navigation | Safe area insets |
@@ -649,7 +649,7 @@ tutur/
 
 ### 7.3 Navigation Architecture
 
-**Bottom Tab Navigator (4 tab):**
+**Bottom Tab Navigator (5 tab):**
 
 ```
 BottomTabNavigator

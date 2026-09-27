@@ -286,14 +286,16 @@ tutur/
 │   └── MockUSDT.sol                  # Kontrak Token ERC-20 6 Desimal opBNB
 ├── src/
 │   ├── app/                          # Navigasi & Halaman Utama
-│   │   ├── Navigation.tsx            # Bottom Tab (4 Tab) + Modal Stack
+│   │   ├── Navigation.tsx            # Bottom Tab (5 Tab) + Modal Stack
 │   │   └── screens/
-│   │       ├── SplashScreen.tsx      # Pengecekan sesi 30 menit
+│   │       ├── SplashScreen.tsx      # Layar Splash Minimalis (Logo Pixel Art)
 │   │       ├── LoginScreen.tsx       # Google Social Login
-│   │       ├── HomeScreen.tsx        # Chat View Interaktif & Saldo Header
+│   │       ├── HomeScreen.tsx        # Beranda Wallet, Grid Fitur & Saldo
+│   │       ├── ChatScreen.tsx        # Asisten AI Groq Percakapan & Transaksi
 │   │       ├── ScanScreen.tsx        # Viewfinder Laser & Preset OCR
 │   │       ├── HistoryScreen.tsx     # Riwayat Dikelompokkan Tanggal
 │   │       ├── ProfileScreen.tsx     # Info Akun, Alamat & Salin Clipboard
+│   │       ├── FaqScreen.tsx         # Tanya Jawab & Tentang Aplikasi
 │   │       ├── ConfirmationScreen.tsx# Form Konfirmasi & Status AI Shield
 │   │       ├── VoiceOverlay.tsx      # Modal Rekaman Suara & Waveform
 │   │       ├── QuickFillModal.tsx    # Ambiguity Resolution Form
@@ -301,8 +303,8 @@ tutur/
 │   ├── components/                   # Komponen Reusable
 │   │   ├── chat/                     # ChatBubble & ChatInputBar
 │   │   ├── common/                   # Button, Card, Badge, Input, Toast, Spinner
-│   │   ├── home/                     # BalanceCard, VoiceButton, RecentTransactions
-│   │   └── scan/                     # QRScanner & PresetOCR
+│   │   ├── home/                     # FeatureGrid, ContactShortcuts, RecentTransactions
+│   │   └── navigation/               # CustomBottomTabBar (Elevated Center Scan Button)
 │   ├── services/                     # Layanan Inti & API
 │   │   ├── chatService.ts            # Integrasi Groq LLM Llama/Qwen
 │   │   ├── groqService.ts            # Integrasi Groq Whisper STT API
@@ -316,20 +318,23 @@ tutur/
 │   │   ├── useChatStore.ts           # Riwayat Pesan Percakapan AI
 │   │   ├── useTransactionStore.ts    # Saldo, Faucet Cooldown, & Riwayat
 │   │   ├── useVoiceStore.ts          # State Rekaman Suara & Durasi
-│   │   └── useToastStore.ts          # Notifikasi Toast Global
+│   │   ├── useToastStore.ts          # Notifikasi Toast Global
+│   │   └── useNetworkStore.ts        # Status Konektivitas Jaringan
 │   ├── utils/                        # Utilitas & Helper
 │   │   ├── slangDictionary.ts        # Kamus 32 Entri Slang Indonesia
 │   │   ├── currencyConverter.ts      # Konversi Kurs Rupiah ↔ USDT
 │   │   ├── resolver.ts               # Mock Lookup Table Domain .bnb
 │   │   ├── qrParser.ts               # Parser EIP-681 & Hex Address
 │   │   ├── formatters.ts             # Pemformat Angka, Waktu, & Alamat
-│   │   └── clipboard.ts              # Native Safe Clipboard Copy
+│   │   ├── clipboard.ts              # Native Safe Clipboard Copy
+│   │   └── __tests__/                # Automated Unit Tests (Formatters & Intents)
 │   ├── constants/                    # Konfigurasi Jaringan & Tema
 │   │   ├── chains.ts                 # Parameter Jaringan opBNB Testnet
 │   │   ├── contracts.ts              # Alamat Kontrak & ABI ERC-20
 │   │   ├── env.ts                    # Pembaca Lingkungan (.env)
-│   │   └── theme.ts                  # Palet Warna Dark Theme & Spacing
-│   └── assets/                       # Dataset Mock & Testing
+│   │   └── theme.ts                  # Palet Warna Binance Dark Gold (#F0B90B)
+│   └── assets/                       # Asset Grafis & Dataset Mock
+│       ├── logo.png                  # Logo Pixel Art Chat Bubble
 │       ├── blacklist.json            # Daftar Alamat Scam Web3 Terverifikasi
 │       └── testCases.json            # 15 Kasus Uji Evaluasi Akurasi
 ├── .env.example                      # Template Variabel Lingkungan
