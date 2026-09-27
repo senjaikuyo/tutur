@@ -13,7 +13,8 @@ import {colors} from '../../constants/theme';
 import {useAuthStore} from '../../stores/useAuthStore';
 import {useTransactionStore} from '../../stores/useTransactionStore';
 import {useToastStore} from '../../stores/useToastStore';
-import {formatIdr, usdtToIdr} from '../../utils/formatters';
+import {formatIdr, usdtToIdr, idrToUsdt} from '../../utils/formatters';
+import FeatureGrid, {FeatureItem} from '../../components/home/FeatureGrid';
 
 const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
@@ -71,6 +72,148 @@ export default function HomeScreen() {
   };
 
   const balanceInRupiah = usdtToIdr(balance);
+
+  // 8 Fitur Utama Grid Beranda (Referensi Gambar 2)
+  const features: FeatureItem[] = [
+    {
+      id: 'transfer',
+      label: 'Transfer\ngratis',
+      icon: 'send',
+      iconColor: '#00AED6',
+      badge: {
+        text: 'GRATIS GAS',
+        bgColor: '#10B981',
+        textColor: '#FFFFFF',
+      },
+      onPress: () => {
+        refreshActivity();
+        rootNav.navigate('QuickFillModal', {intent: {}});
+      },
+    },
+    {
+      id: 'faucet',
+      label: 'Minta\nSaldo',
+      icon: 'cash-plus',
+      iconColor: '#10B981',
+      badge: {
+        text: '100 USDT',
+        bgColor: '#00AED6',
+        textColor: '#FFFFFF',
+      },
+      onPress: handleTopUp,
+    },
+    {
+      id: 'data',
+      label: 'Paket\nData',
+      icon: 'cellphone-wireless',
+      iconColor: '#F59E0B',
+      badge: {
+        text: 'MURAAAH',
+        bgColor: '#10B981',
+        textColor: '#0B1724',
+      },
+      onPress: () => {
+        refreshActivity();
+        showToast('Fitur Paket Data akan hadir di update berikutnya', 'info');
+      },
+    },
+    {
+      id: 'pulsa',
+      label: 'Pulsa\nReguler',
+      icon: 'cellphone-message',
+      iconColor: '#00AED6',
+      badge: {
+        text: 'MURAAAH',
+        bgColor: '#10B981',
+        textColor: '#0B1724',
+      },
+      onPress: () => {
+        refreshActivity();
+        showToast('Fitur Pulsa akan hadir di update berikutnya', 'info');
+      },
+    },
+    {
+      id: 'pln',
+      label: 'Token\nPLN',
+      icon: 'flash',
+      iconColor: '#FACC15',
+      badge: {
+        text: 'MURAAAH',
+        bgColor: '#10B981',
+        textColor: '#0B1724',
+      },
+      onPress: () => {
+        refreshActivity();
+        showToast('Fitur Token Listrik PLN akan hadir di update berikutnya', 'info');
+      },
+    },
+    {
+      id: 'hosting',
+      label: 'Tagihan\nHosting',
+      icon: 'server',
+      iconColor: '#38BDF8',
+      onPress: () => {
+        refreshActivity();
+        rootNav.navigate('HomeTab', {
+          screen: 'Confirmation',
+          params: {
+            intent: {
+              action: 'TRANSFER',
+              recipient: 'warung.bnb',
+              token: 'USDT',
+              amount: 15,
+              amountInRupiah: null,
+              confidence: 1.0,
+              rawText: 'Tagihan Hosting $15',
+              normalizedText: 'tagihan hosting 15 usdt',
+              missingFields: [],
+            },
+          },
+        });
+      },
+    },
+    {
+      id: 'kopi',
+      label: 'Struk Kopi\n(QRIS)',
+      icon: 'coffee',
+      iconColor: '#10B981',
+      badge: {
+        text: 'CASHBACK',
+        bgColor: '#F59E0B',
+        textColor: '#0B1724',
+      },
+      onPress: () => {
+        refreshActivity();
+        const usdtAmount = idrToUsdt(25000);
+        rootNav.navigate('HomeTab', {
+          screen: 'Confirmation',
+          params: {
+            intent: {
+              action: 'TRANSFER',
+              recipient: 'warung.bnb',
+              token: 'USDT',
+              amount: usdtAmount,
+              amountInRupiah: 25000,
+              confidence: 1.0,
+              rawText: 'Struk Kopi Rp 25.000',
+              normalizedText: 'struk kopi rp 25000',
+              missingFields: [],
+            },
+          },
+        });
+      },
+    },
+    {
+      id: 'all',
+      label: 'Lihat\nsemua',
+      icon: 'dots-grid',
+      iconColor: '#94A3B8',
+      onPress: () => {
+        refreshActivity();
+        showToast('Semua layanan utama sudah tersedia di Beranda', 'info');
+      },
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -181,11 +324,14 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Placeholder container untuk Tahap 3 (Grid Fitur) & Tahap 4 (Kontak) */}
+        {/* 2. GRID FITUR (Gaya GoPay - Referensi Gambar 2) */}
         <View style={styles.bodyContent}>
+          <FeatureGrid features={features} />
+
+          {/* Placeholder untuk Tahap 4 (Kontak Cepat) */}
           <View style={styles.placeholderCard}>
             <Text style={styles.placeholderText}>
-              Grid Fitur (Tahap 3) akan dimuat di sini...
+              Kontak Cepat (Tahap 4) akan dimuat di sini...
             </Text>
           </View>
         </View>
