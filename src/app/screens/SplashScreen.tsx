@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Text, ActivityIndicator, StyleSheet} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {colors} from '../../constants/theme';
@@ -20,18 +20,18 @@ export default function SplashScreen() {
       } else {
         navigation.replace('Login');
       }
-    }, 1500);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, [navigation, isAuthenticated, checkSessionExpiry]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>TUTUR</Text>
-      <Text style={styles.subtitle}>Dompet Kripto Bahasa Sehari-hari</Text>
-      <View style={styles.spinnerWrapper}>
-        <ActivityIndicator size="large" color={colors.bnbGold} />
-      </View>
+      <Image
+        source={require('../../assets/logo.png')}
+        style={styles.logoImage}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -41,20 +41,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bgPrimary,
+    backgroundColor: '#000000',
   },
-  logo: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.bnbGold,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 32,
-  },
-  spinnerWrapper: {
-    marginTop: 8,
+  logoImage: {
+    width: 120,
+    height: 120,
   },
 });
