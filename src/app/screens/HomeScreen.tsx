@@ -15,6 +15,7 @@ import {useTransactionStore} from '../../stores/useTransactionStore';
 import {useToastStore} from '../../stores/useToastStore';
 import {formatIdr, usdtToIdr, idrToUsdt} from '../../utils/formatters';
 import FeatureGrid, {FeatureItem} from '../../components/home/FeatureGrid';
+import ContactShortcuts, {ShortcutContact} from '../../components/home/ContactShortcuts';
 
 const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
@@ -69,6 +70,27 @@ export default function HomeScreen() {
       'TUTUR: Dompet Kripto Bahasa Sehari-hari di opBNB. Gunakan tombol Scan atau Chat untuk transaksi.',
       'info',
     );
+  };
+
+  const handleSelectContact = (contact: ShortcutContact) => {
+    refreshActivity();
+    rootNav.navigate('QuickFillModal', {
+      intent: {
+        action: 'TRANSFER',
+        recipient: contact.bnsName || contact.recipientAddress,
+        token: 'USDT',
+        amount: null,
+        confidence: 0.8,
+        rawText: `Kirim ke ${contact.name}`,
+        normalizedText: `kirim ke ${contact.name.toLowerCase()}`,
+        missingFields: ['amount'],
+      },
+    });
+  };
+
+  const handleMoreContacts = () => {
+    refreshActivity();
+    rootNav.navigate('QuickFillModal', {intent: {}});
   };
 
   const balanceInRupiah = usdtToIdr(balance);
@@ -328,12 +350,11 @@ export default function HomeScreen() {
         <View style={styles.bodyContent}>
           <FeatureGrid features={features} />
 
-          {/* Placeholder untuk Tahap 4 (Kontak Cepat) */}
-          <View style={styles.placeholderCard}>
-            <Text style={styles.placeholderText}>
-              Kontak Cepat (Tahap 4) akan dimuat di sini...
-            </Text>
-          </View>
+          {/* 3. KONTAK CEPAT (Shortcut Transfer - Referensi Gambar 2) */}
+          <ContactShortcuts
+            onSelectContact={handleSelectContact}
+            onPressMore={handleMoreContacts}
+          />
         </View>
       </ScrollView>
     </View>
