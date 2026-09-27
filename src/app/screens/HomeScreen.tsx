@@ -1,80 +1,46 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
+  ScrollView,
   StyleSheet,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
+  StatusBar,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {colors} from '../../constants/theme';
-import {formatToken, getInitials} from '../../utils/formatters';
-import ChatBubble from '../../components/chat/ChatBubble';
-import ChatInputBar from '../../components/chat/ChatInputBar';
-import type {HomeStackParamList} from '../../types/navigation';
-import type {IntentResult} from '../../types/intent';
-import {useToastStore} from '../../stores/useToastStore';
 import {useAuthStore} from '../../stores/useAuthStore';
 import {useTransactionStore} from '../../stores/useTransactionStore';
-import {useChatStore} from '../../stores/useChatStore';
-
-type Nav = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
+import {useToastStore} from '../../stores/useToastStore';
+import {formatIdr, usdtToIdr} from '../../utils/formatters';
 
 const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
 export default function HomeScreen() {
-  const navigation = useNavigation<Nav>();
   const rootNav = useNavigation<any>();
   const showToast = useToastStore(s => s.show);
 
   const {user, refreshActivity} = useAuthStore();
-  const {balance, claimFaucet, faucetLoading, faucetCooldown, refreshBalance} =
-    useTransactionStore();
-  const {messages, isTyping, loadChatHistory, addUserMessage} = useChatStore();
+  const {
+    balance,
+    claimFaucet,
+    faucetLoading,
+    faucetCooldown,
+    refreshBalance,
+  } = useTransactionStore();
 
-  const flatListRef = useRef<FlatList>(null);
+  const [showBalance, setShowBalance] = useState(true);
+
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
-  const userName = user?.name || 'Rian Senja';
 
   useEffect(() => {
-    loadChatHistory();
     if (userAddress) {
       refreshBalance(userAddress);
     }
-  }, [userAddress, refreshBalance, loadChatHistory]);
+  }, [userAddress, refreshBalance]);
 
-  useEffect(() => {
-    // Auto scroll ke bawah saat pesan baru masuk
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({animated: true});
-    }, 150);
-  }, [messages, isTyping]);
-
-  const handleSendMessage = (text: string) => {
-    refreshActivity();
-    addUserMessage(text, false, balance);
-  };
-
-  const handlePressMic = () => {
-    refreshActivity();
-    rootNav.navigate('VoiceOverlay');
-  };
-
-  const handleActionCardPress = (intent: IntentResult) => {
-    refreshActivity();
-    if (intent.confidence < 0.75 || intent.missingFields.length > 0) {
-      rootNav.navigate('QuickFillModal', {intent});
-    } else {
-      navigation.navigate('Confirmation', {intent});
-    }
-  };
-
-  const handleFaucet = async () => {
+  const handleTopUp = async () => {
     refreshActivity();
     if (faucetCooldown > 0) {
       showToast(`Tunggu cooldown ${faucetCooldown} detik...`, 'info');
@@ -84,199 +50,308 @@ export default function HomeScreen() {
     showToast('Meminta 100 USDT Faucet via opBNB Paymaster...', 'info');
     const success = await claimFaucet(userAddress);
     if (success) {
-      showToast('100 USDT berhasil ditambahkan ke saldo kamu!', 'success');
+      showToast('100 USDT berhasil ditambahkan ke saldo!', 'success');
     }
   };
 
+  const handleSecurityCheck = () => {
+    refreshActivity();
+    rootNav.navigate('SecurityWarningModal', {
+      type: 'blacklist',
+      address: userAddress,
+    });
+  };
+
+  const handleHelp = () => {
+    refreshActivity();
+    showToast(
+      'TUTUR: Dompet Kripto Bahasa Sehari-hari di opBNB. Gunakan tombol Scan atau Chat untuk transaksi.',
+      'info',
+    );
+  };
+
+  const balanceInRupiah = usdtToIdr(balance);
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      {/* Header Ringkas: Logo + Mini Saldo + Avatar */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerLogo}>TUTUR</Text>
-          <View style={styles.aiBadge}>
-            <Text style={styles.aiBadgeText}>AI Assistant</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        {/* ============================================================ */}
+        {/* 1. HEADER & HERO SALDO (Gaya GoPay x TUTUR - Referensi Gambar 2) */}
+        {/* ============================================================ */}
+        <View style={styles.heroSection}>
+          {/* Top Bar: Logo & Keamanan / Bantuan */}
+          <View style={styles.topBar}>
+            {/* Logo Kiri Atas */}
+            <View style={styles.logoRow}>
+              <View style={styles.logoIconBg}>
+                <MaterialCommunityIcons
+                  name="wallet"
+                  size={18}
+                  color="#FFFFFF"
+                />
+              </View>
+              <Text style={styles.logoText}>tutur</Text>
+            </View>
+
+            {/* Kanan Atas: Indikator Keamanan Akun & Tombol Bantuan */}
+            <View style={styles.topRightActions}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleSecurityCheck}
+                style={styles.securityBadge}>
+                <View style={styles.securityPill}>
+                  <Text style={styles.securityPercent}>80%</Text>
+                </View>
+                <Text style={styles.securityText}>Akun terlindungi</Text>
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={14}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleHelp}
+                style={styles.helpButton}>
+                <MaterialCommunityIcons
+                  name="help-circle-outline"
+                  size={20}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Area Saldo Utama & Tombol Top Up (Tanpa Tarik Tunai, Tanpa Poin) */}
+          <View style={styles.balanceArea}>
+            {/* Sisi Kiri: Saldo Besar */}
+            <View style={styles.balanceInfo}>
+              <View style={styles.balanceRow}>
+                <Text style={styles.currencyPrefix}>Rp</Text>
+                <Text style={styles.mainBalance}>
+                  {showBalance ? formatIdr(balanceInRupiah).replace('Rp ', '') : '••••••••'}
+                </Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => setShowBalance(!showBalance)}
+                  style={styles.eyeBtn}>
+                  <MaterialCommunityIcons
+                    name={showBalance ? 'eye-outline' : 'eye-off-outline'}
+                    size={20}
+                    color="#FFFFFF"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.cryptoEquiv}>
+                {showBalance
+                  ? `≈ ${balance.toFixed(2)} USDT di opBNB`
+                  : 'Saldo disembunyikan'}
+              </Text>
+            </View>
+
+            {/* Sisi Kanan: HANYA Tombol Top Up */}
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleTopUp}
+              disabled={faucetCooldown > 0 || faucetLoading}
+              style={[
+                styles.topUpButton,
+                (faucetCooldown > 0 || faucetLoading) && styles.topUpDisabled,
+              ]}>
+              <MaterialCommunityIcons
+                name="plus-circle-outline"
+                size={20}
+                color="#FFFFFF"
+              />
+              <Text style={styles.topUpText}>
+                {faucetLoading
+                  ? 'Proses...'
+                  : faucetCooldown > 0
+                  ? `${faucetCooldown}s`
+                  : 'Top up'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.headerRight}>
-          {/* Mini Balance Chip (Tap untuk Faucet) */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.balanceChip}
-            onPress={handleFaucet}>
-            <MaterialCommunityIcons
-              name="wallet"
-              size={14}
-              color={colors.bnbGold}
-            />
-            <Text style={styles.balanceText}>{formatToken(balance)}</Text>
-            {faucetCooldown === 0 && (
-              <MaterialCommunityIcons
-                name="plus-circle"
-                size={12}
-                color={colors.emerald}
-              />
-            )}
-          </TouchableOpacity>
-
-          {/* User Avatar */}
-          <TouchableOpacity
-            style={styles.avatar}
-            onPress={() => rootNav.navigate('ProfileTab')}>
-            <Text style={styles.avatarText}>{getInitials(userName)}</Text>
-          </TouchableOpacity>
+        {/* Placeholder container untuk Tahap 3 (Grid Fitur) & Tahap 4 (Kontak) */}
+        <View style={styles.bodyContent}>
+          <View style={styles.placeholderCard}>
+            <Text style={styles.placeholderText}>
+              Grid Fitur (Tahap 3) akan dimuat di sini...
+            </Text>
+          </View>
         </View>
-      </View>
-
-      {/* Daftar Pesan Percakapan */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <ChatBubble message={item} onPressAction={handleActionCardPress} />
-        )}
-        contentContainerStyle={styles.listContent}
-        ListFooterComponent={
-          isTyping ? (
-            <View style={styles.typingContainer}>
-              <View style={styles.botAvatar}>
-                <MaterialCommunityIcons
-                  name="robot-happy-outline"
-                  size={16}
-                  color={colors.bnbGold}
-                />
-              </View>
-              <View style={styles.typingBubble}>
-                <ActivityIndicator size="small" color={colors.bnbGold} />
-                <Text style={styles.typingText}>TUTUR AI sedang mengetik...</Text>
-              </View>
-            </View>
-          ) : undefined
-        }
-      />
-
-      {/* Input Bar di Bawah */}
-      <ChatInputBar
-        onSendMessage={handleSendMessage}
-        onPressMic={handlePressMic}
-        disabled={isTyping}
-      />
-    </KeyboardAvoidingView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bgPrimary,
+    backgroundColor: '#0A1118',
   },
-  header: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 90,
+  },
+  /* Hero Header Saldo bergaya GoPay */
+  heroSection: {
+    backgroundColor: '#08486A',
+    paddingTop: 48,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 12,
-    backgroundColor: colors.bgSecondary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginBottom: 20,
   },
-  headerLeft: {
+  logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  headerLogo: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.bnbGold,
-  },
-  aiBadge: {
-    backgroundColor: `${colors.bnbGold}20`,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 6,
-  },
-  aiBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.bnbGold,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  balanceChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgTertiary,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  balanceText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  avatar: {
+  logoIconBg: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: '#00AED6',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  avatarText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '600',
+  logoText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
-  listContent: {
-    paddingVertical: 12,
-    flexGrow: 1,
-  },
-  typingContainer: {
+  topRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    marginVertical: 6,
-  },
-  botAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.bgTertiary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  typingBubble: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgSecondary,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 16,
     gap: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  typingText: {
+  securityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingLeft: 4,
+    paddingRight: 8,
+    gap: 6,
+  },
+  securityPill: {
+    backgroundColor: '#F59E0B',
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  securityPercent: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  securityText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  helpButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  /* Saldo Utama & Top Up */
+  balanceArea: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 4,
+  },
+  balanceInfo: {
+    flex: 1,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  currencyPrefix: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  mainBalance: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+  },
+  eyeBtn: {
+    marginLeft: 6,
+    padding: 2,
+    alignSelf: 'center',
+  },
+  cryptoEquiv: {
     fontSize: 12,
-    color: colors.textMuted,
+    color: '#D1EBF6',
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  topUpButton: {
+    backgroundColor: '#00AED6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  topUpDisabled: {
+    opacity: 0.6,
+  },
+  topUpText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  bodyContent: {
+    padding: 16,
+  },
+  placeholderCard: {
+    backgroundColor: '#131D28',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#1D2C3D',
+  },
+  placeholderText: {
+    fontSize: 13,
+    color: '#6E8294',
     fontStyle: 'italic',
   },
 });
