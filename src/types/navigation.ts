@@ -12,12 +12,14 @@ export type RootStackParamList = {
     onProceed?: () => void;
     onCancel?: () => void;
   };
+  Faq: undefined;
 };
 
 export type HomeStackParamList = {
   Home: undefined;
   Confirmation: {intent: IntentResult};
   TransactionDetail: {txId: string};
+  Faq: undefined;
 };
 
 export type ChatStackParamList = {

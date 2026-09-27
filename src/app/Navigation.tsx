@@ -28,6 +28,7 @@ import ConfirmationScreen from './screens/ConfirmationScreen';
 import VoiceOverlay from './screens/VoiceOverlay';
 import QuickFillModal from './screens/QuickFillModal';
 import SecurityWarningModal from './screens/SecurityWarningModal';
+import FaqScreen from './screens/FaqScreen';
 import CustomBottomTabBar from '../components/navigation/CustomBottomTabBar';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -48,6 +49,7 @@ function HomeStackNavigator() {
         contentStyle: {backgroundColor: colors.bgPrimary},
       }}>
       <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen name="Faq" component={FaqScreen} />
       <HomeStack.Screen
         name="Confirmation"
         component={ConfirmationScreen}
@@ -221,6 +223,7 @@ export default function Navigation() {
             animation: 'fade',
           }}
         />
+        <RootStack.Screen name="Faq" component={FaqScreen} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

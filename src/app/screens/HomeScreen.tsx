@@ -66,10 +66,7 @@ export default function HomeScreen() {
 
   const handleHelp = () => {
     refreshActivity();
-    showToast(
-      'TUTUR: Dompet Kripto Bahasa Sehari-hari di opBNB. Gunakan tombol Scan atau Chat untuk transaksi.',
-      'info',
-    );
+    rootNav.navigate('Faq');
   };
 
   const handleSelectContact = (contact: ShortcutContact) => {
