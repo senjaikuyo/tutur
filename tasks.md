@@ -6,3 +6,4 @@
 - [x] 4. Jalankan audit pengujian Intent Accuracy 15 skenario (Section 10.1 PRD) - Akurasi: 100%
 - [x] 5. Validasi alur AI Security Shield (Blacklist & Unlimited Allowance Warning)
 - [x] 6. Validasi persistensi SQLite database lokal riwayat transaksi (FR-7.1, NFR-4)
+- [x] 7. Build Standalone Release APK (tutur-release.apk) dengan Groq API Key ter-embed langsung

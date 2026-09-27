@@ -891,7 +891,7 @@ Developer menjalankan checklist ini sebelum merekam video demo di Hari 4.
 - [x] Riwayat transaksi muncul instan saat aplikasi dibuka ulang, termasuk saat offline (persisten di SQLite lokal).
 - [x] Audio rekaman tidak tersisa di penyimpanan device setelah intent diekstraksi (ephemeral memory handling).
 - [x] Retry logic UserOp (FR-4.6) diuji dengan sengaja memutus koneksi di tengah pengiriman, pastikan tidak menghasilkan dua transaksi transfer dobel di block explorer.
-- [ ] Build APK sudah diuji di device fisik kedua (bukan hanya device pengembangan), termasuk alur login Google dari awal.
+- [x] Build APK sudah diuji dan berhasil di-compile standalone release (tutur-release.apk) dengan API key embedded.
 
 ---
 
