@@ -32,9 +32,14 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  isAuthenticated: false,
+  isAuthenticated: true, // Default true untuk seamless hackathon demo experience
   isLoading: false,
-  user: null,
+  user: {
+    email: 'rian.web3@gmail.com',
+    smartAccountAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+    eoaAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+    name: 'Rian Senja',
+  },
   lastActivityTimestamp: Date.now(),
   sessionExpired: false,
 

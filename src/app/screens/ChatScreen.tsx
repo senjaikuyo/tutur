@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
-  Keyboard,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
@@ -39,30 +38,6 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
   const userName = user?.name || 'Rian Senja';
-
-  // Deteksi status keyboard agar padding bottom dinamis
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  useEffect(() => {
-    const showSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({animated: true});
-        }, 100);
-      },
-    );
-    const hideSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setKeyboardVisible(false),
-    );
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
 
   useEffect(() => {
     loadChatHistory();
@@ -111,13 +86,11 @@ export default function ChatScreen() {
     }
   };
 
-  // Hitung padding bawah agar tidak tertutup CustomBottomTabBar (~70-80dp) saat keyboard tertutup
-  const bottomBarPadding = isKeyboardVisible ? 0 : Math.max(insets.bottom, 10) + 68;
+  // Padding bottom seukuran CustomBottomTabBar
+  const bottomBarPadding = Math.max(insets.bottom, 10) + 72;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={styles.container}>
       {/* Header Ringkas: Logo + Mini Saldo + Avatar */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -157,46 +130,48 @@ export default function ChatScreen() {
         </View>
       </View>
 
-      {/* Daftar Pesan Percakapan */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <ChatBubble message={item} onPressAction={handleActionCardPress} />
-        )}
-        contentContainerStyle={[
-          styles.listContent,
-          {paddingBottom: 16},
-        ]}
-        ListFooterComponent={
-          isTyping ? (
-            <View style={styles.typingContainer}>
-              <View style={styles.botAvatar}>
-                <MaterialCommunityIcons
-                  name="robot-happy-outline"
-                  size={16}
-                  color={colors.bnbGold}
-                />
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        {/* Daftar Pesan Percakapan */}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <ChatBubble message={item} onPressAction={handleActionCardPress} />
+          )}
+          contentContainerStyle={styles.listContent}
+          ListFooterComponent={
+            isTyping ? (
+              <View style={styles.typingContainer}>
+                <View style={styles.botAvatar}>
+                  <MaterialCommunityIcons
+                    name="robot-happy-outline"
+                    size={16}
+                    color={colors.bnbGold}
+                  />
+                </View>
+                <View style={styles.typingBubble}>
+                  <ActivityIndicator size="small" color={colors.bnbGold} />
+                  <Text style={styles.typingText}>tutur AI sedang mengetik...</Text>
+                </View>
               </View>
-              <View style={styles.typingBubble}>
-                <ActivityIndicator size="small" color={colors.bnbGold} />
-                <Text style={styles.typingText}>tutur AI sedang mengetik...</Text>
-              </View>
-            </View>
-          ) : undefined
-        }
-      />
+            ) : undefined
+          }
+        />
 
-      {/* Input Bar di Bawah dengan bantalan Navbar saat keyboard tertutup */}
-      <View style={{paddingBottom: bottomBarPadding, backgroundColor: '#181E28'}}>
+        {/* Input Bar di Bawah */}
         <ChatInputBar
           onSendMessage={handleSendMessage}
           onPressMic={handlePressMic}
           disabled={isTyping}
         />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+
+      {/* Spacer pengaman agar input bar tidak tertimpa tab bar yang melayang */}
+      <View style={[styles.bottomSpacer, {height: bottomBarPadding}]} />
+    </View>
   );
 }
 
@@ -204,6 +179,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0B0E14',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  bottomSpacer: {
+    backgroundColor: '#181E28',
   },
   header: {
     flexDirection: 'row',

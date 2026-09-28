@@ -1,10 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, StyleSheet, Animated, Image} from 'react-native';
+import {View, Text, StyleSheet, Animated, Image, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {colors} from '../../constants/theme';
-import Button from '../../components/common/Button';
 import type {RootStackParamList} from '../../types/navigation';
 import {useAuthStore} from '../../stores/useAuthStore';
 import {useToastStore} from '../../stores/useToastStore';
@@ -20,16 +19,8 @@ export default function LoginScreen() {
 
   // Animasi mengambang halus (gentle floating) untuk logo
   const floatAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade-in seluruh elemen halaman
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-
     // Animasi mengambang naik-turun halus logo
     Animated.loop(
       Animated.sequence([
@@ -45,7 +36,7 @@ export default function LoginScreen() {
         }),
       ]),
     ).start();
-  }, [fadeAnim, floatAnim]);
+  }, [floatAnim]);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -64,7 +55,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.contentWrap, {opacity: fadeAnim}]}>
+      <View style={styles.contentWrap}>
         {/* Logo Pixel Art dengan animasi floating lembut */}
         <Animated.View
           style={[
@@ -88,15 +79,22 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        <Button
-          label="Masuk dengan Google"
+        {/* Tombol Masuk dengan Google */}
+        <TouchableOpacity
+          activeOpacity={0.8}
           onPress={handleLogin}
-          variant="primary"
-          loading={loading}
           disabled={loading}
-          fullWidth
-          style={styles.loginBtn}
-        />
+          style={[styles.loginBtn, loading && styles.loginBtnDisabled]}>
+          <MaterialCommunityIcons
+            name="google"
+            size={20}
+            color="#0B0E14"
+            style={styles.googleIcon}
+          />
+          <Text style={styles.loginBtnText}>
+            {loading ? 'Menghubungkan...' : 'Masuk dengan Google'}
+          </Text>
+        </TouchableOpacity>
 
         <View style={styles.termsRow}>
           <MaterialCommunityIcons
@@ -108,7 +106,7 @@ export default function LoginScreen() {
             Tanpa seed phrase • Akun diamankan biometrik & MPC
           </Text>
         </View>
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -162,7 +160,26 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   loginBtn: {
+    width: '100%',
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: colors.bnbGold,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
+    elevation: 4,
+  },
+  loginBtnDisabled: {
+    opacity: 0.6,
+  },
+  googleIcon: {
+    marginRight: 8,
+  },
+  loginBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0B0E14',
   },
   termsRow: {
     flexDirection: 'row',
