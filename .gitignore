@@ -82,3 +82,5 @@ yarn-error.log
 
 # iOS (not used, Android only)
 ios/
+android/app/src/main/assets/
+screenshots/
