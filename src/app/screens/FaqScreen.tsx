@@ -25,42 +25,42 @@ const FAQ_LIST: FaqItem[] = [
     category: 'Transaksi Suara & Slang',
     question: 'Bagaimana cara transfer tanpa mengetik alamat wallet?',
     answer:
-      'Cukup tekan tombol Mikrofon atau ketik di tab Chat dengan gaya bahasa santai sehari-hari, misalnya: "Kirim goceng USDT ke Budi" atau "Oper seratus ribu ke Warung". Asisten AI TUTUR akan langsung membedah nominal, tujuan, dan menyiapkan konfirmasi.',
+      'Cukup tekan tombol Mikrofon atau ketik di tab Chat dengan gaya bahasa santai sehari-hari, misalnya: "Kirim goceng USDT ke Budi" atau "Oper seratus ribu ke Warung". Asisten AI tutur akan langsung membedah nominal, tujuan, dan menyiapkan konfirmasi.',
   },
   {
     id: 'f2',
     category: 'Transaksi Suara & Slang',
-    question: 'Istilah slang apa saja yang dimengerti oleh TUTUR?',
+    question: 'Istilah slang apa saja yang dimengerti oleh tutur?',
     answer:
-      'TUTUR memahami 32+ istilah percakapan uang Indonesia, antara lain:\n• goceng = 5 USDT\n• ceban = 10 USDT\n• gocap = 50 USDT\n• cepek = 100 USDT\n• gopek = 500 USDT\n• seceng = 1.000 USDT\n• seratus ribu = Rp 100.000 (dikonversi otomatis ke USDT)\n• lima ratus ribu / sejuta / dsb.',
+      'tutur memahami 32+ istilah percakapan uang Indonesia, antara lain:\n• goceng = 5 USDT\n• ceban = 10 USDT\n• gocap = 50 USDT\n• cepek = 100 USDT\n• gopek = 500 USDT\n• seceng = 1.000 USDT\n• seratus ribu = Rp 100.000 (dikonversi otomatis ke USDT)\n• lima ratus ribu / sejuta / dsb.',
   },
   {
     id: 'f3',
     category: 'Keamanan & Akun',
-    question: 'Mengapa di TUTUR tidak ada 12 kata pemulihan (Seed Phrase)?',
+    question: 'Mengapa di tutur tidak ada 12 kata pemulihan (Seed Phrase)?',
     answer:
-      'TUTUR mengadopsi standar Account Abstraction (ERC-4337) dengan Social Login Google dan WebAuthn Biometrik (MPC). Kunci privat diamankan secara terdistribusi di Secure Enclave perangkat Anda, sehingga Anda terbebas dari rasa cemas kehilangan seed phrase.',
+      'tutur mengadopsi standar Account Abstraction (ERC-4337) dengan Social Login Google dan WebAuthn Biometrik (MPC). Kunci privat diamankan secara terdistribusi di Secure Enclave perangkat Anda, sehingga Anda terbebas dari rasa cemas kehilangan seed phrase.',
   },
   {
     id: 'f4',
     category: 'Biaya Gas (opBNB)',
     question: 'Mengapa biaya gas transaksi 0 BNB (Gratis)?',
     answer:
-      'Setiap transaksi di TUTUR menggunakan kontrak Paymaster di jaringan opBNB Testnet yang mensubsidi 100% biaya gas. Anda tidak perlu membeli atau menyimpan saldo koin native BNB hanya untuk mentransfer USDT.',
+      'Setiap transaksi di tutur menggunakan kontrak Paymaster di jaringan opBNB Testnet yang mensubsidi 100% biaya gas. Anda tidak perlu membeli atau menyimpan saldo koin native BNB hanya untuk mentransfer USDT.',
   },
   {
     id: 'f5',
     category: 'AI Security Shield',
-    question: 'Bagaimana TUTUR melindungi dari penipuan dan wallet drainer?',
+    question: 'Bagaimana tutur melindungi dari penipuan dan wallet drainer?',
     answer:
       'AI Security Shield otomatis mengaudit setiap alamat kontrak tujuan terhadap daftar hitam penipuan publik (blacklist). Jika terdeteksi berbahaya, transaksi langsung DIBLOKIR. Sistem kami juga mendeteksi upaya Unlimited Token Approval dan memberikan opsi "Batasi Izin Sesuai Transaksi" agar saldo Anda tidak pernah terkuras.',
   },
   {
     id: 'f6',
     category: 'Jaringan & Blockchain',
-    question: 'Blockchain apa yang digunakan oleh TUTUR?',
+    question: 'Blockchain apa yang digunakan oleh tutur?',
     answer:
-      `TUTUR berjalan di atas jaringan opBNB Testnet (Chain ID: ${OPBNB_TESTNET.chainId}), Layer 2 berkecepatan tinggi dari ekosistem BNB Chain dengan finalitas transaksi di bawah 2 detik dan biaya gas super efisien.`,
+      `tutur berjalan di atas jaringan opBNB Testnet (Chain ID: ${OPBNB_TESTNET.chainId}), Layer 2 berkecepatan tinggi dari ekosistem BNB Chain dengan finalitas transaksi di bawah 2 detik dan biaya gas super efisien.`,
   },
 ];
 
@@ -115,7 +115,7 @@ export default function FaqScreen() {
           </View>
 
           <Text style={styles.aboutDesc}>
-            TUTUR adalah dompet Web3 pintar pertama di ekosistem opBNB yang
+            tutur adalah dompet Web3 pintar pertama di ekosistem opBNB yang
             memungkinkan pengguna kasual bertransaksi kripto lewat perintah
             suara bahasa prokem Indonesia, AI chat interaktif, dan Account
             Abstraction (ERC-4337) tanpa rasa takut.
@@ -176,7 +176,7 @@ export default function FaqScreen() {
 
         {/* Footer info */}
         <Text style={styles.footerInfo}>
-          TUTUR v1.0.0 • Indonesia Web3 Hackathon 2026{'\n'}
+          tutur v1.0.0 • Indonesia Web3 Hackathon 2026{'\n'}
           Author: Afif Hamzah Siregar (Solo Builder)
         </Text>
       </ScrollView>

@@ -19,7 +19,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     id: 'welcome-1',
     role: 'assistant',
     content:
-      'Halo Rian! 👋 Aku asisten dompet TUTUR. Mau kirim uang atau cek saldo? Kamu bisa ketik atau tekan tombol mikrofon untuk bicara langsung pakai bahasa santai, misalnya: "Kirim goceng ke Budi".',
+      'Halo Rian! 👋 Aku asisten dompet tutur. Mau kirim uang atau cek saldo? Kamu bisa ketik atau tekan tombol mikrofon untuk bicara langsung pakai bahasa santai, misalnya: "Kirim goceng ke Budi".',
     timestamp: Date.now() - 60000,
   },
 ];

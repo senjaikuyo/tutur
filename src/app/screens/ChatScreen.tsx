@@ -91,7 +91,7 @@ export default function ChatScreen() {
       {/* Header Ringkas: Logo + Mini Saldo + Avatar */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerLogo}>TUTUR</Text>
+          <Text style={styles.headerLogo}>tutur</Text>
           <View style={styles.aiBadge}>
             <Text style={styles.aiBadgeText}>AI Assistant</Text>
           </View>
@@ -148,7 +148,7 @@ export default function ChatScreen() {
               </View>
               <View style={styles.typingBubble}>
                 <ActivityIndicator size="small" color={colors.bnbGold} />
-                <Text style={styles.typingText}>TUTUR AI sedang mengetik...</Text>
+                <Text style={styles.typingText}>tutur AI sedang mengetik...</Text>
               </View>
             </View>
           ) : undefined

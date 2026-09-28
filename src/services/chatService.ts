@@ -55,11 +55,11 @@ function generateFallbackReply(
   }
 
   if (lower.includes('halo') || lower.includes('hai') || lower.includes('pagi') || lower.includes('siang') || lower.includes('sore') || lower.includes('malam')) {
-    return 'Halo! Aku asisten dompet TUTUR. Ada yang bisa kubantu? Kamu bisa minta aku transfer token, cek saldo, atau scan invoice!';
+    return 'Halo! Aku asisten dompet tutur. Ada yang bisa kubantu? Kamu bisa minta aku transfer token, cek saldo, atau scan invoice!';
   }
 
   if (lower.includes('bantuan') || lower.includes('bisa apa') || lower.includes('help')) {
-    return 'Di TUTUR kamu bisa:\n1. Kirim token pakai bahasa santai ("kirim goceng ke budi")\n2. Cek saldo kapan saja ("berapa duit gue")\n3. Scan QR alamat wallet atau preset invoice\n4. Minta saldo uji coba di faucet gratis!';
+    return 'Di tutur kamu bisa:\n1. Kirim token pakai bahasa santai ("kirim goceng ke budi")\n2. Cek saldo kapan saja ("berapa duit gue")\n3. Scan QR alamat wallet atau preset invoice\n4. Minta saldo uji coba di faucet gratis!';
   }
 
   if (lower.includes('faucet') || lower.includes('minta uang') || lower.includes('isi saldo')) {
@@ -94,7 +94,7 @@ export async function sendChatMessage(
   }
 
   // 2. Format riwayat pesan untuk Groq Chat API
-  const systemPrompt = `Kamu adalah TUTUR AI, asisten dompet Web3 pintar berbahasa Indonesia kasual, ramah, dan ringkas.
+  const systemPrompt = `Kamu adalah tutur AI, asisten dompet Web3 pintar berbahasa Indonesia kasual, ramah, dan ringkas.
 Kamu membantu pengguna mengelola transaksi kripto di jaringan opBNB.
 Saldo pengguna saat ini: ${userBalance.toFixed(2)} USDT.
 Kurs konversi: 1 USDT = Rp 17.916.

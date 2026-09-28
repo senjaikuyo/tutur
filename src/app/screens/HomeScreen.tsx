@@ -213,9 +213,9 @@ export default function HomeScreen() {
         {/* 1. HEADER & HERO SALDO (Konsisten Emas/Oren Binance)          */}
         {/* ============================================================ */}
         <View style={styles.heroSection}>
-          {/* Top Bar: Murni Logo TUTUR Emas di Kiri, Tombol Bantuan di Kanan */}
+          {/* Top Bar: Murni Logo tutur Emas di Kiri, Tombol Bantuan di Kanan */}
           <View style={styles.topBar}>
-            <Text style={styles.logoText}>TUTUR</Text>
+            <Text style={styles.logoText}>tutur</Text>
 
             <TouchableOpacity
               activeOpacity={0.7}
