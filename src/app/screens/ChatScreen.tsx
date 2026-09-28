@@ -1,25 +1,27 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Keyboard,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {colors} from '../../constants/theme';
-import {formatToken, getInitials} from '../../utils/formatters';
 import ChatBubble from '../../components/chat/ChatBubble';
 import ChatInputBar from '../../components/chat/ChatInputBar';
-import type {IntentResult} from '../../types/intent';
-import {useToastStore} from '../../stores/useToastStore';
-import {useAuthStore} from '../../stores/useAuthStore';
-import {useTransactionStore} from '../../stores/useTransactionStore';
 import {useChatStore} from '../../stores/useChatStore';
+import {useTransactionStore} from '../../stores/useTransactionStore';
+import {useAuthStore} from '../../stores/useAuthStore';
+import {useToastStore} from '../../stores/useToastStore';
+import {formatToken, getInitials} from '../../utils/formatters';
+import type {IntentResult} from '../../types/intent';
 
 const FALLBACK_ADDRESS = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
 
@@ -27,6 +29,7 @@ export default function ChatScreen() {
   const navigation = useNavigation<any>();
   const rootNav = useNavigation<any>();
   const showToast = useToastStore(s => s.show);
+  const insets = useSafeAreaInsets();
 
   const {user, refreshActivity} = useAuthStore();
   const {balance, claimFaucet, faucetCooldown, refreshBalance} =
@@ -37,18 +40,44 @@ export default function ChatScreen() {
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
   const userName = user?.name || 'Rian Senja';
 
+  // Deteksi status keyboard agar padding bottom dinamis
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({animated: true});
+        }, 100);
+      },
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   useEffect(() => {
     loadChatHistory();
     if (userAddress) {
       refreshBalance(userAddress);
     }
-  }, [userAddress, refreshBalance, loadChatHistory]);
+  }, [loadChatHistory, refreshBalance, userAddress]);
 
+  // Otomatis scroll ke bawah saat ada pesan baru atau bot mulai mengetik
   useEffect(() => {
-    // Auto scroll ke bawah saat pesan baru masuk
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({animated: true});
-    }, 150);
+    if (messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({animated: true});
+      }, 150);
+    }
   }, [messages, isTyping]);
 
   const handleSendMessage = (text: string) => {
@@ -58,14 +87,12 @@ export default function ChatScreen() {
 
   const handlePressMic = () => {
     refreshActivity();
-    rootNav.navigate('VoiceOverlay');
+    navigation.navigate('VoiceOverlay');
   };
 
   const handleActionCardPress = (intent: IntentResult) => {
     refreshActivity();
-    if (intent.confidence < 0.75 || intent.missingFields.length > 0) {
-      rootNav.navigate('QuickFillModal', {intent});
-    } else {
+    if (intent.action === 'TRANSFER') {
       navigation.navigate('Confirmation', {intent});
     }
   };
@@ -83,6 +110,9 @@ export default function ChatScreen() {
       showToast('100 USDT berhasil ditambahkan ke saldo kamu!', 'success');
     }
   };
+
+  // Hitung padding bawah agar tidak tertutup CustomBottomTabBar (~70-80dp) saat keyboard tertutup
+  const bottomBarPadding = isKeyboardVisible ? 0 : Math.max(insets.bottom, 10) + 68;
 
   return (
     <KeyboardAvoidingView
@@ -135,7 +165,10 @@ export default function ChatScreen() {
         renderItem={({item}) => (
           <ChatBubble message={item} onPressAction={handleActionCardPress} />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          {paddingBottom: 16},
+        ]}
         ListFooterComponent={
           isTyping ? (
             <View style={styles.typingContainer}>
@@ -155,12 +188,14 @@ export default function ChatScreen() {
         }
       />
 
-      {/* Input Bar di Bawah */}
-      <ChatInputBar
-        onSendMessage={handleSendMessage}
-        onPressMic={handlePressMic}
-        disabled={isTyping}
-      />
+      {/* Input Bar di Bawah dengan bantalan Navbar saat keyboard tertutup */}
+      <View style={{paddingBottom: bottomBarPadding, backgroundColor: '#181E28'}}>
+        <ChatInputBar
+          onSendMessage={handleSendMessage}
+          onPressMic={handlePressMic}
+          disabled={isTyping}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -168,7 +203,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bgPrimary,
+    backgroundColor: '#0B0E14',
   },
   header: {
     flexDirection: 'row',
@@ -177,9 +212,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 48,
     paddingBottom: 12,
-    backgroundColor: colors.bgSecondary,
+    backgroundColor: '#181E28',
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: '#263040',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -214,13 +249,13 @@ const styles = StyleSheet.create({
   balanceChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: '#202836',
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 16,
     gap: 6,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#2D3747',
   },
   balanceText: {
     fontSize: 12,
@@ -231,11 +266,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: '#202836',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#2D3747',
   },
   avatarText: {
     fontSize: 12,
@@ -256,23 +291,23 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: '#202836',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#2D3747',
   },
   typingBubble: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgSecondary,
+    backgroundColor: '#181E28',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 16,
     gap: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#263040',
   },
   typingText: {
     fontSize: 12,
