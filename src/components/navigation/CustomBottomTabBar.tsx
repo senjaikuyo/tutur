@@ -1,5 +1,5 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Keyboard, Platform} from 'react-native';
 import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,6 +11,28 @@ export default function CustomBottomTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = Math.max(insets.bottom, 10);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setKeyboardVisible(true),
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // Jika keyboard aktif, sembunyikan navbar agar tidak menutupi chat input & pesan
+  if (isKeyboardVisible) {
+    return null;
+  }
 
   return (
     <View style={styles.tabBarContainer}>
@@ -87,9 +109,11 @@ export default function CustomBottomTabBar({
               {/* Ikon Tab Bersih Tanpa Kotak Kaku */}
               <MaterialCommunityIcons
                 name={iconName}
-                size={23}
+                size={24}
                 color={isFocused ? colors.bnbGold : '#848E9C'}
               />
+
+              {/* Label Tab */}
               <Text
                 style={[
                   styles.tabLabel,
@@ -161,36 +185,35 @@ const styles = StyleSheet.create({
     width: 14,
     height: 2.5,
     marginTop: 3,
+    backgroundColor: 'transparent',
   },
+  /* Center Scan Button */
   centerItemWrapper: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    height: '100%',
-    paddingBottom: 2,
+    justifyContent: 'flex-start',
+    position: 'relative',
+    top: -12,
   },
   scanElevatedButtonOuter: {
-    position: 'absolute',
-    top: -22,
-    width: 62,
-    height: 48,
-    borderRadius: 24,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: '#1F1A08',
-    padding: 3,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.bnbGold,
     shadowColor: colors.bnbGold,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.45,
     shadowRadius: 8,
     elevation: 10,
-    borderWidth: 2,
-    borderColor: '#3D3310',
   },
   scanElevatedButtonInner: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: colors.bnbGold,
     alignItems: 'center',
     justifyContent: 'center',
@@ -198,6 +221,6 @@ const styles = StyleSheet.create({
   scanLabel: {
     fontSize: 11,
     fontWeight: '600',
-    marginTop: 22,
+    marginTop: 2,
   },
 });

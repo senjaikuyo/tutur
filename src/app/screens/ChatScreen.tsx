@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
@@ -38,6 +39,32 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const userAddress = user?.smartAccountAddress || FALLBACK_ADDRESS;
   const userName = user?.name || 'Rian Senja';
+
+  // Deteksi status keyboard agar padding bottom dinamis & chat auto-scroll naik
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({animated: true});
+        }, 100);
+      },
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      },
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     loadChatHistory();
@@ -86,8 +113,9 @@ export default function ChatScreen() {
     }
   };
 
-  // Padding bottom seukuran CustomBottomTabBar
-  const bottomBarPadding = Math.max(insets.bottom, 10) + 72;
+  // Saat keyboard terbuka, spacer bawah dinonaktifkan (0) agar input bar menempel di atas keyboard.
+  // Saat keyboard tertutup, spacer bawah aktif setinggi CustomBottomTabBar agar tidak tertimpa navbar.
+  const bottomBarPadding = isKeyboardVisible ? 0 : Math.max(insets.bottom, 10) + 72;
 
   return (
     <View style={styles.container}>
@@ -142,6 +170,8 @@ export default function ChatScreen() {
             <ChatBubble message={item} onPressAction={handleActionCardPress} />
           )}
           contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           ListFooterComponent={
             isTyping ? (
               <View style={styles.typingContainer}>
@@ -169,8 +199,10 @@ export default function ChatScreen() {
         />
       </KeyboardAvoidingView>
 
-      {/* Spacer pengaman agar input bar tidak tertimpa tab bar yang melayang */}
-      <View style={[styles.bottomSpacer, {height: bottomBarPadding}]} />
+      {/* Spacer pengaman agar input bar tidak tertimpa tab bar saat keyboard tertutup */}
+      {bottomBarPadding > 0 && (
+        <View style={[styles.bottomSpacer, {height: bottomBarPadding}]} />
+      )}
     </View>
   );
 }

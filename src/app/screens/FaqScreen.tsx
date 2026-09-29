@@ -176,7 +176,7 @@ export default function FaqScreen() {
 
         {/* Footer info */}
         <Text style={styles.footerInfo}>
-          tutur v1.0.0 • Indonesia Web3 Hackathon 2026{'\n'}
+          tutur v1.0.1 • Indonesia Web3 Hackathon 2026{'\n'}
           Author: Afif Hamzah Siregar (Solo Builder)
         </Text>
       </ScrollView>

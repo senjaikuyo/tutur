@@ -153,7 +153,7 @@ export default function ProfileScreen() {
         <Text style={styles.logoutText}>Keluar</Text>
       </TouchableOpacity>
 
-      <Text style={styles.version}>tutur v1.0.0 — Hackathon Edition</Text>
+      <Text style={styles.version}>tutur v1.0.1 — Hackathon Edition</Text>
     </ScrollView>
   );
 }
